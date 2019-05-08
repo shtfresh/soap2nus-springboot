@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
+@EnableTransactionManagement
+@EnableEurekaClient
+@ServletComponentScan
 public class HelloworldApplication {
     @RequestMapping("/")
     public String index(){
