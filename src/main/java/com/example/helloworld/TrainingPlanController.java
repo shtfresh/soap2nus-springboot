@@ -17,8 +17,7 @@ import com.example.db.TrainingPlanTemplateDbDeclaration;
 import com.example.TrainingPlan.TrainingPlan;
 import com.example.TrainingPlanTemplate.TrainingPlanTemplate;
 import com.example.db.TrainingPlanDbDeclaration;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -57,7 +56,6 @@ public class TrainingPlanController {
     @RequestMapping(value="/tp",method=RequestMethod.POST)
     public String createPlan(@RequestBody String tpItem) {
     	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    	SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd");
     	
     	JsonObject tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
     	tpItemJsonObject.addProperty("tpId", "tpXXX"+counter.incrementAndGet());

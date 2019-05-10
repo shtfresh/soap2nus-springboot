@@ -4,8 +4,6 @@ package com.example.db;
 
 import java.util.List;
 
-import org.json.JSONArray;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,9 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.example.TrainingPlan.TrainingPlan;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+
 
 public class TrainingPlanDbDeclaration {
     

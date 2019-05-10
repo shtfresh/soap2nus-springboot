@@ -5,14 +5,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.TrainingPlanTemplate.TrainingPlanTemplate;
@@ -23,7 +19,6 @@ import com.google.gson.JsonParser;
 @RestController
 public class TrainingPlanTemplateController {
 
-    private static final String template = "Hello, %s!";
     private final AtomicLong counter = new AtomicLong();
     
     TrainingPlanTemplateDbDeclaration edao = new TrainingPlanTemplateDbDeclaration();

@@ -1,11 +1,7 @@
 package com.example.TrainingPlanTemplate;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonRawValue;
 
-
-//@XmlRootElement(name = "TrainingPlanTemplate")
 public class TrainingPlanTemplate {
 
     private final String tptId;
