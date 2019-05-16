@@ -2,6 +2,7 @@ package com.example.helloworld;
 
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.text.DecimalFormat;
@@ -142,8 +143,6 @@ public class TrainingPlanController {
             			entry.getValue().getAsJsonObject().addProperty("maxKilometre", division(maxKilometre, 1000));
         				entry.getValue().getAsJsonObject().addProperty("finished", "0");
         					
-        				startTime = startTime.plusDays(1);
-        				entry.getValue().getAsJsonObject().addProperty("date", startTime.toString());
         				entry.getValue().getAsJsonObject().addProperty("status", "planed");
         				//System.out.println(startTime.plusDays(1).toString());
         				//tpItemJsonObject.get("tpStart").toString()
@@ -151,6 +150,8 @@ public class TrainingPlanController {
         			}
         		
         		}
+				startTime = startTime.plusDays(1);
+				entry.getValue().getAsJsonObject().addProperty("date", startTime.toString());
         	}
     	}
     	
@@ -186,10 +187,14 @@ public class TrainingPlanController {
     @RequestMapping(value="/tpstatus",method=RequestMethod.POST)
     public String updatePlanStatus(@RequestBody String tpItem) {
     	
+    	Map<String, String> mapNeedModify = new HashMap<String, String>();
+    	
     	JsonObject tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
+    	JsonObject returnJsonObject = new JsonObject();
     	boolean result;
     	String tpOwnerId = tpItemJsonObject.get("tpOwnerId").toString().replace("\"", "");
     	TrainingPlan tp = edaoTp.getAllPlan(tpOwnerId).get(0);
+    	String requestDate = tpItemJsonObject.get("tpDate").toString().replace("\"", "");
     	/*
     	LocalDate tpStartTime = LocalDate.parse(tp.gettpStart().replace("\"", ""));
     	LocalDate tpUpdateDate = LocalDate.parse(tpItemJsonObject.get("tpDate").toString().replace("\"", ""));
@@ -203,7 +208,7 @@ public class TrainingPlanController {
     	JsonArray weeksjsonArray = new JsonParser().parse(tp.getWeeks()).getAsJsonArray();
     	//System.out.println(weeksjsonArray.toString());
     	//System.out.println(weeksjsonArray.get(week).getAsJsonObject().get(days).toString());
-    	
+    	int count = 0;
     	for (JsonElement pa : weeksjsonArray) {
     		JsonObject temp = pa.getAsJsonObject();
     		
@@ -213,34 +218,61 @@ public class TrainingPlanController {
         		if (taskItem != null) {
         			//System.out.println(entry.getValue().getAsJsonObject().get("date").toString().replace("\"", ""));
         			//System.out.println(tpItemJsonObject.get("tpDate").toString());
-        			if (entry.getValue().getAsJsonObject().get("date").toString().replace("\"", "").equals(new String(tpItemJsonObject.get("tpDate").toString().replace("\"", "")))) {
-		        		float kilometers = Float.parseFloat((tpItemJsonObject.get("kilometers").toString().replace("\"", "")));
+        			if (entry.getValue().getAsJsonObject().get("date").toString().replace("\"", "").equals(requestDate)) {
+        				returnJsonObject.addProperty("date", requestDate);
+        				mapNeedModify.put("day", entry.getKey());
+        				mapNeedModify.put("index", Integer.toString(count));
+        				float kilometers = Float.parseFloat((tpItemJsonObject.get("kilometers").toString().replace("\"", "")));
 	    				float minKilometre = Float.parseFloat(entry.getValue().getAsJsonObject().get("minKilometre").toString().replace("\"", ""));
 	    				float maxKilometre = Float.parseFloat(entry.getValue().getAsJsonObject().get("maxKilometre").toString().replace("\"", ""));
 	    				//System.out.println("kilometers = "+kilometers+" minKilometre = "+minKilometre);
 	    				if (kilometers > Float.parseFloat(entry.getValue().getAsJsonObject().get("finished").toString().replace("\"", ""))) {
 	    					entry.getValue().getAsJsonObject().addProperty("finished", Float.toString(kilometers));
+	    					mapNeedModify.put("finished", Float.toString(kilometers));
 	    				}
 		        		if (kilometers > minKilometre) {
 		        			//System.out.println("change status");
 		        			//System.out.println(entry.getValue().getAsJsonObject().get("status").toString());
 		        			entry.getValue().getAsJsonObject().addProperty("status", "completed");
+		        			mapNeedModify.put("status", "completed");
+		        			returnJsonObject.addProperty("status", "completed");
 		        		} else {
 		        			entry.getValue().getAsJsonObject().addProperty("status", "incompleted");
+		        			mapNeedModify.put("status", "incompleted");
+		        			returnJsonObject.addProperty("status", "incompleted");
 		        		}
-		        		
-		        			
 		        	}
         		}
         	}
+        	count = count +1;
         }
+    	String sqlString;
+    	if (mapNeedModify.containsKey("day")) {
+    		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    		if (mapNeedModify.containsKey("finished")) {
+        		sqlString = String.format("UPDATE t_oracle_tp SET tpUpdateAt = \"%s\", weeks = JSON_REPLACE(weeks,'$[%d].%s.status', \"%s\", "
+            			+ "'$[%d].%s.finished', \"%s\") "
+            			+ "where tpOwnerId = \"%s\"", df.format(new Date()),
+            			Integer.parseInt(mapNeedModify.get("index")), mapNeedModify.get("day"), mapNeedModify.get("status"), 
+            			Integer.parseInt(mapNeedModify.get("index")), mapNeedModify.get("day"), mapNeedModify.get("finished"),
+            			tpOwnerId);
+        	} else {
+         		sqlString = String.format("UPDATE t_oracle_tp SET tpUpdateAt = \"%s\", weeks = JSON_REPLACE(weeks,'$[%d].%s.status', \"%s\")"
+         				+ " where tpOwnerId = \"%s\"", df.format(new Date()),
+         				Integer.parseInt(mapNeedModify.get("index")), mapNeedModify.get("day"), mapNeedModify.get("status"), tpOwnerId);
+        	}
+    	} else {
+    		return String.format("Request Date [%s] not found", requestDate);
+    	}
     	
-    	System.out.println(weeksjsonArray.toString());
-    	result = edaoTpEnum.update(tpOwnerId, weeksjsonArray.toString());
-        if (result) {
-        	return "success";
+    	//System.out.println(weeksjsonArray.toString());
+    	System.out.println(mapNeedModify.toString());
+    	//result = edaoTpEnum.update(tpOwnerId, weeksjsonArray.toString());
+    	result = edaoTpEnum.updateNew(sqlString);
+        if (result && returnJsonObject.entrySet().size() != 0) {
+        	return returnJsonObject.toString();
         } else {
-        	return "fail";
+        	return "Fail";
         }
     }
     
