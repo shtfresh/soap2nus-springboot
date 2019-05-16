@@ -79,10 +79,28 @@ public class TrainingPlanTemplateEnumDbDeclaration {
 	
     public boolean update(String tpOwnerId, String weeks){
 		String updateTableSQL = "UPDATE t_oracle_tp SET weeks=? WHERE tpOwnerId=?";
+
 		try (PreparedStatement preparedStatement = this.conn
 				.prepareStatement(updateTableSQL);) {
 			preparedStatement.setString(1, weeks);
 			preparedStatement.setString(2, tpOwnerId);
+
+			preparedStatement.executeUpdate();
+            return true;
+		} catch (SQLException e) {
+            System.out.println("SQL Update Error: "	+ e.getMessage());
+            return false;            
+		} catch (Exception e) {
+            System.out.println("Update Error: "	+ e.getMessage());
+            return false;            
+		}
+    
+    }
+    
+    public boolean updateNew(String updateTableSQL){
+
+		try (PreparedStatement preparedStatement = this.conn
+				.prepareStatement(updateTableSQL);) {
 
 			preparedStatement.executeUpdate();
             return true;
