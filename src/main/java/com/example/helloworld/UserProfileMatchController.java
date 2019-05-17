@@ -1,5 +1,6 @@
 package com.example.helloworld;
 
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.TrainingPlan.TrainingPlan;
 import com.example.client.ReadyGoClient;
+import com.example.db.DBConnectionMysql;
+import com.example.db.TrainingPlanTemplateDbDeclaration;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -34,6 +37,9 @@ public class UserProfileMatchController {
     	
     	// getStatus for a training plan
     	TrainingPlan trainingPlan = new TrainingPlanController().getPlanActive(userId);
+    	if (trainingPlan == null) {
+    		return String.format("Fail: userID: %s does not exist", userId);
+    	}
     	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
     	String requestDate = df.format(new Date());
     	System.out.println(requestDate);
@@ -71,18 +77,35 @@ public class UserProfileMatchController {
 
     	// userInfo
     	Map<String , Object> map = readygoClient.getUserInfoByUserId(userId);
+    	if (!map.get("code").equals(new String("00"))) {
+    		return String.format("getUserInfoByUserId Fail: userID: %s does not exist", userId);
+    	}
     	JsonObject userInfoJsonObject = new JsonParser().parse(gson.toJson(map.get("results"))).getAsJsonObject();
     	returnJsonObject.add("userProfile", userInfoJsonObject);
     	System.out.println(userInfoJsonObject.toString());
     	
     	// registeredMatchList
     	Map<String , Object> map1 = readygoClient.queryReportMatchList(userId);
+    	if (!map1.get("code").equals(new String("00"))) {
+    		return String.format("queryReportMatchList Fail: userID: %s does not exist", userId);
+    	}
     	JsonArray registeredMatchListjsonArray = new JsonParser().parse(gson.toJson(map1.get("results"))).getAsJsonArray();
     	returnJsonObject.add("registeredMatchList", registeredMatchListjsonArray);
     	System.out.println(registeredMatchListjsonArray.toString());
    
     	return returnJsonObject.toString();
     }
+    
+    /*
+    @RequestMapping(value="/match/{matchId}",method=RequestMethod.GET)
+    public String getAmatch(@PathVariable String matchId) {
+    	Map<String , Object> map = readygoClient.queryReportMatchDetail(userId, matchId);
+    	if (map.get("code").equals(new String("00"))) {
+    		return (String) map.get("msg");
+    	} else {
+    		return "Failed";
+    	}		
+    }*/
     
     @RequestMapping(value="/userProfile/{userId}",method=RequestMethod.PUT)
     public String updateUserInfo(@PathVariable String userId, @RequestBody String userInfo) {

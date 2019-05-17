@@ -5,20 +5,22 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.time.LocalDate;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.db.TrainingPlanTemplateDbDeclaration;
 import com.example.TrainingPlan.TrainingPlan;
 import com.example.TrainingPlanTemplate.TrainingPlanTemplate;
+import com.example.db.DBConnectionMysql;
 import com.example.db.TrainingPlanDbDeclaration;
 import com.example.db.TrainingPlanTemplateEnumDbDeclaration;
 
@@ -32,26 +34,28 @@ public class TrainingPlanController {
 
     private final AtomicLong counter = new AtomicLong();
     
-    TrainingPlanTemplateDbDeclaration edaoTpt = new TrainingPlanTemplateDbDeclaration();
-    
     TrainingPlanDbDeclaration edaoTp = new TrainingPlanDbDeclaration();
-    TrainingPlanTemplateEnumDbDeclaration edaoTpEnum = new TrainingPlanTemplateEnumDbDeclaration();
 
+    @ResponseBody
     @RequestMapping(value="/activetp/{tpOwnerId}",method=RequestMethod.GET)
     public TrainingPlan getPlanActive(@PathVariable String tpOwnerId) {
+    	checkConnection(edaoTp);
     	TrainingPlan tp;
         tp = edaoTp.getActivePlan(tpOwnerId);
-        //System.out.println(tpt.getWeeks());
         return tp;
     }
     
+    @ResponseBody
     @RequestMapping(value="/alltp/{tpOwnerId}",method=RequestMethod.GET)
     public TrainingPlan[] getAllPlan(@PathVariable String tpOwnerId) {
+    	checkConnection(edaoTp);
     	return edaoTp.getAllPlan(tpOwnerId).toArray(new TrainingPlan[0]);
     }
     
+    @ResponseBody
     @RequestMapping(value="/tp/{tpId}",method=RequestMethod.GET)
     public TrainingPlan getPlanOnTP(@PathVariable String tpId) {
+    	checkConnection(edaoTp);
     	TrainingPlan tp;
         tp = edaoTp.getPlanOnTP(tpId);
         //System.out.println(tpt.getWeeks());
@@ -61,7 +65,7 @@ public class TrainingPlanController {
     @RequestMapping(value="/tp",method=RequestMethod.POST)
     public TrainingPlan createPlan(@RequestBody String tpItem) {
     	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    	
+        TrainingPlanTemplateEnumDbDeclaration edaoTpEnum = new TrainingPlanTemplateEnumDbDeclaration();
     	JsonObject tptEnumJsonObject = edaoTpEnum.getPlanTemplateEnum();
     	
     	JsonObject tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
@@ -74,17 +78,14 @@ public class TrainingPlanController {
     	// get tpt
     	TrainingPlanTemplate tpt;
     	//System.out.println(tpItemJsonObject.get("tptId"));
+        TrainingPlanTemplateDbDeclaration edaoTpt = new TrainingPlanTemplateDbDeclaration();
     	tpt = edaoTpt.getPlanTemplate(tpItemJsonObject.get("tptId").toString().replace("\"", ""));
     	
     	if (tpt == null) {
     		//return "Fail: "+tpItemJsonObject.get("tptId").toString()+" Not Found in TrainingPlan Template!";
-    		return new TrainingPlan();
+    		return null;
     	}
-    	//System.out.println(tptEnumJsonObject);
-    	//return tptEnumJsonObject.get("tpStatus").toString();
-    	
-    	//System.out.println(tpt.gettptId());
-    	//System.out.println(tpt.getWeeks());
+
     	LocalDate startTime = LocalDate.parse(tpItemJsonObject.get("tpStart").toString().replace("\"", ""));
     	JsonArray weeksjsonArray = new JsonParser().parse(tpt.getWeeks()).getAsJsonArray();
     	for (JsonElement pa : weeksjsonArray) {
@@ -159,6 +160,7 @@ public class TrainingPlanController {
     	//System.out.println("******************");
     	System.out.println(weeksjsonArray.toString());
     	boolean result;
+    	checkConnection(edaoTp);
         
     	TrainingPlan tpNew = new TrainingPlan(
     			tpItemJsonObject.get("tpId").toString().replace("\"", ""),
@@ -182,15 +184,16 @@ public class TrainingPlanController {
     	if (result) {
     		return tpNew;
     	} else {
-    		return new TrainingPlan();
+    		return null;
     	}
-    	
     }
     
+    @ResponseBody
     @RequestMapping(value="/tpstatus",method=RequestMethod.POST)
     public String updatePlanStatus(@RequestBody String tpItem) {
     	
     	Map<String, String> mapNeedModify = new HashMap<String, String>();
+    	checkConnection(edaoTp);
     	
     	JsonObject tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
     	JsonObject returnJsonObject = new JsonObject();
@@ -209,8 +212,6 @@ public class TrainingPlanController {
     	*/
     	
     	JsonArray weeksjsonArray = new JsonParser().parse(tp.getWeeks()).getAsJsonArray();
-    	//System.out.println(weeksjsonArray.toString());
-    	//System.out.println(weeksjsonArray.get(week).getAsJsonObject().get(days).toString());
     	int count = 0;
     	for (JsonElement pa : weeksjsonArray) {
     		JsonObject temp = pa.getAsJsonObject();
@@ -271,6 +272,7 @@ public class TrainingPlanController {
     	//System.out.println(weeksjsonArray.toString());
     	System.out.println(mapNeedModify.toString());
     	//result = edaoTpEnum.update(tpOwnerId, weeksjsonArray.toString());
+    	TrainingPlanTemplateEnumDbDeclaration edaoTpEnum = new TrainingPlanTemplateEnumDbDeclaration();
     	result = edaoTpEnum.updateNew(sqlString);
         if (result && returnJsonObject.entrySet().size() != 0) {
         	return returnJsonObject.toString();
@@ -281,6 +283,7 @@ public class TrainingPlanController {
     
     @RequestMapping(value="/tp/{tpId}", method=RequestMethod.DELETE)
     public String deletePlanTemplate(@PathVariable String tpId) {
+    	checkConnection(edaoTp);
     	boolean result;
         result = edaoTp.deletePlan(tpId);
         if (result) {
@@ -302,4 +305,14 @@ public class TrainingPlanController {
         return result;
 
     }
+	
+	public static void checkConnection(TrainingPlanDbDeclaration tp) {
+    	try {
+			if(tp.conn.isClosed()) {
+				tp.conn = DBConnectionMysql.getInstance().getConnection();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }

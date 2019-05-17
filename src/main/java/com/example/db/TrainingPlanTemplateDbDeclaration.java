@@ -16,7 +16,7 @@ public class TrainingPlanTemplateDbDeclaration {
     
     List<TrainingPlanTemplate> eList = null;
 	
-	private final Connection conn = DBConnectionMysql.getInstance().getConnection();
+    public Connection conn = DBConnectionMysql.getInstance().getConnection();
 	    
 	public List<TrainingPlanTemplate> query(String sqlQueryStr) {
 		List<TrainingPlanTemplate> resultList = new ArrayList<>();

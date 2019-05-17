@@ -27,7 +27,7 @@ public class TrainingPlan {
     
     public TrainingPlan() {
     	
-    	this.tpId = "";
+    	this.tpId = "\"\"";
     	this.tpOwnerId = "";
     	this.tpPublishedAt = "";
     	this.tpUpdateAt = "";
