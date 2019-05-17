@@ -59,7 +59,7 @@ public class TrainingPlanController {
     }
     
     @RequestMapping(value="/tp",method=RequestMethod.POST)
-    public String createPlan(@RequestBody String tpItem) {
+    public TrainingPlan createPlan(@RequestBody String tpItem) {
     	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     	
     	JsonObject tptEnumJsonObject = edaoTpEnum.getPlanTemplateEnum();
@@ -77,7 +77,8 @@ public class TrainingPlanController {
     	tpt = edaoTpt.getPlanTemplate(tpItemJsonObject.get("tptId").toString().replace("\"", ""));
     	
     	if (tpt == null) {
-    		return "Fail: "+tpItemJsonObject.get("tptId").toString()+" Not Found in TrainingPlan Template!";
+    		//return "Fail: "+tpItemJsonObject.get("tptId").toString()+" Not Found in TrainingPlan Template!";
+    		return new TrainingPlan();
     	}
     	//System.out.println(tptEnumJsonObject);
     	//return tptEnumJsonObject.get("tpStatus").toString();
@@ -159,29 +160,31 @@ public class TrainingPlanController {
     	System.out.println(weeksjsonArray.toString());
     	boolean result;
         
-    	result = edaoTp.add(new TrainingPlan(
-    			tpItemJsonObject.get("tpId").toString(),
-    			tpItemJsonObject.get("tpOwnerId").toString(),
-    			tpItemJsonObject.get("tpPublishedAt").toString(),
-    			tpItemJsonObject.get("tpUpdateAt").toString(),
-    			tpItemJsonObject.get("tpOwner").toString(),
-    			tpItemJsonObject.get("tpStatus").toString(),
-    			tpItemJsonObject.get("tpStart").toString(),
-    			tpItemJsonObject.get("tpEnd").toString(),
-    			tpItemJsonObject.get("tpTargetType").toString(),
-    			tpItemJsonObject.get("tpTargetMatchid").toString(),
+    	TrainingPlan tpNew = new TrainingPlan(
+    			tpItemJsonObject.get("tpId").toString().replace("\"", ""),
+    			tpItemJsonObject.get("tpOwnerId").toString().replace("\"", ""),
+    			tpItemJsonObject.get("tpPublishedAt").toString().replace("\"", ""),
+    			tpItemJsonObject.get("tpUpdateAt").toString().replace("\"", ""),
+    			tpItemJsonObject.get("tpOwner").toString().replace("\"", ""),
+    			tpItemJsonObject.get("tpStatus").toString().replace("\"", ""),
+    			tpItemJsonObject.get("tpStart").toString().replace("\"", ""),
+    			tpItemJsonObject.get("tpEnd").toString().replace("\"", ""),
+    			tpItemJsonObject.get("tpTargetType").toString().replace("\"", ""),
+    			tpItemJsonObject.get("tpTargetMatchid").toString().replace("\"", ""),
     			tpItemJsonObject.get("tpVersionNo").getAsInt(),
     			tpt.gettptId(),
     			tpt.gettptTile(),
     			tpt.gettptType(),
     			tpt.gettptDescrition(),
-    			weeksjsonArray.toString()));
+    			weeksjsonArray.toString());
+    
+    	result = edaoTp.add(tpNew);
+    	if (result) {
+    		return tpNew;
+    	} else {
+    		return new TrainingPlan();
+    	}
     	
-        if (result) {
-        	return "success";
-        } else {
-        	return "fail";
-        }
     }
     
     @RequestMapping(value="/tpstatus",method=RequestMethod.POST)

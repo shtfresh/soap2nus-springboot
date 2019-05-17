@@ -55,7 +55,7 @@ public class TrainingPlanDbDeclaration {
 			preparedStatement.setString(1, tpItem.gettpId().replace("\"", ""));
 			preparedStatement.setString(2, tpItem.gettpOwnerId().replace("\"", ""));
 			preparedStatement.setString(3, tpItem.gettpPublishedAt().replace("\"", ""));
-			preparedStatement.setString(4, tpItem.gettpUpdateAtt().replace("\"", ""));
+			preparedStatement.setString(4, tpItem.gettpUpdateAt().replace("\"", ""));
 			preparedStatement.setString(5, tpItem.gettpOwner().replace("\"", ""));
 			preparedStatement.setString(6, tpItem.gettpStatus().replace("\"", ""));
 			preparedStatement.setString(7, tpItem.gettpStart().replace("\"", ""));

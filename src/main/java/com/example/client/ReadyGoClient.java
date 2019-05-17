@@ -17,7 +17,7 @@ public interface ReadyGoClient {
      * @return
      * 根据用户id获取内容
      */
-    @RequestMapping(value = "/getUserInfoByUserId", method = RequestMethod.GET)
+    @RequestMapping(value = "/trainer/getUserInfoByUserId", method = RequestMethod.GET)
     Map<String , Object> getUserInfoByUserId(@RequestParam(value="userId")String userId);
     
     
@@ -32,7 +32,7 @@ public interface ReadyGoClient {
      * @return
      * 更新个人信息
      */
-    @RequestMapping(value = "updateUser" , method = RequestMethod.POST)
+    @RequestMapping(value = "/trainer/updateUser" , method = RequestMethod.POST)
     Map<String , Object> updateUser(@RequestParam(value = "userId" , required = false) Integer userId ,
                                            @RequestParam(value = "age" , required = false) String age ,
                                            @RequestParam(value = "gender" , required = false) Integer gender ,
@@ -46,7 +46,7 @@ public interface ReadyGoClient {
      * @return
      * 获取报名赛事
      */
-    @RequestMapping(value = "queryReportMatchList" , method = RequestMethod.GET)
+    @RequestMapping(value = "/trainer/queryReportMatchList" , method = RequestMethod.GET)
     Map<String , Object> queryReportMatchList(@RequestParam(value = "userId") String userId);
 
     
@@ -57,7 +57,7 @@ public interface ReadyGoClient {
      * @return
      * 获取赛事是数据
      */
-    @RequestMapping(value = "queryReportMatchDetail" , method = RequestMethod.GET)
+    @RequestMapping(value = "/trainer/queryReportMatchDetail" , method = RequestMethod.GET)
     public Map<String , Object> queryReportMatchDetail(@RequestParam(value = "userId") String userId ,
                                                        @RequestParam(value = "matchId") String matchId
                                                        );

@@ -23,7 +23,30 @@ public class TrainingPlan {
     private final String tptType;
     private final String tptDescrition;
     @JsonRawValue
-    private final String weeks;
+    private String weeks;
+    
+    public TrainingPlan() {
+    	
+    	this.tpId = "";
+    	this.tpOwnerId = "";
+    	this.tpPublishedAt = "";
+    	this.tpUpdateAt = "";
+    	this.tpOwner = "";
+    	this.tpStatus = "";
+    	this.tpStart = "";
+    	this.tpEnd = "";
+    	this.tpTargetType = "";
+    	this.tpTargetMatchid = "";
+    	this.tpVersionNo = 0;
+    	
+   
+        this.tptId = "";
+        this.tptTile = "";
+        this.tptType = "";
+        this.tptDescrition = "";
+        this.weeks = "";
+    }
+    
     
     public TrainingPlan(String tpId, String tpOwnerId, String tpPublishedAt, String tpUpdateAt, String tpOwner, 
     		String tpStatus, String tpStart, String tpEnd, String tpTargetType, String tpTargetMatchid, int tpVersionNo,
@@ -61,7 +84,7 @@ public class TrainingPlan {
         return this.tpPublishedAt;
     }
     
-    public String gettpUpdateAtt() {
+    public String gettpUpdateAt() {
         return this.tpUpdateAt;
     }
     
@@ -111,8 +134,11 @@ public class TrainingPlan {
         return this.tptDescrition;
     }
     
-    
     public String getWeeks() {
         return this.weeks;
+    }
+    
+    public void clearWeeks() {
+        this.weeks = "";
     }
 }

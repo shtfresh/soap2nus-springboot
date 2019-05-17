@@ -48,6 +48,7 @@ public class DBConnectionMysql {
                 e.getMessage();
             }
         }
+        System.out.println("Get DB Connection success");
         return connection;
     }
 }
