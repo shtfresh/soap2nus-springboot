@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.TrainingPlanTemplate.TrainingPlanTemplate;
 import com.example.db.DBConnectionMysql;
-import com.example.db.TrainingPlanDbDeclaration;
 import com.example.db.TrainingPlanTemplateDbDeclaration;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -31,7 +30,6 @@ public class TrainingPlanTemplateController {
     	checkConnection(edao);
     	TrainingPlanTemplate tpt;
         tpt = edao.getPlanTemplate(tptId);
-        //System.out.println(tpt.getWeeks());
         
         return tpt;
     }

@@ -189,7 +189,7 @@ public class TrainingPlanController {
     }
     
     @ResponseBody
-    @RequestMapping(value="/tpstatus",method=RequestMethod.POST)
+    @RequestMapping(value="/tpstatus",method=RequestMethod.POST,produces="application/json;charset=UTF-8")
     public String updatePlanStatus(@RequestBody String tpItem) {
     	
     	Map<String, String> mapNeedModify = new HashMap<String, String>();
@@ -266,7 +266,7 @@ public class TrainingPlanController {
          				Integer.parseInt(mapNeedModify.get("index")), mapNeedModify.get("day"), mapNeedModify.get("status"), tpOwnerId);
         	}
     	} else {
-    		return String.format("Request Date [%s] not found", requestDate);
+    		return String.format("{\"return\": \"failed\", \"reason\": \"Request Date %s not found\"}", requestDate);
     	}
     	
     	//System.out.println(weeksjsonArray.toString());
@@ -277,7 +277,7 @@ public class TrainingPlanController {
         if (result && returnJsonObject.entrySet().size() != 0) {
         	return returnJsonObject.toString();
         } else {
-        	return "Fail";
+        	return "{\"return\": \"failed\"}";
         }
     }
     

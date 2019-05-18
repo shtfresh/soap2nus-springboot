@@ -1,6 +1,5 @@
 package com.example.helloworld;
 
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -15,8 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.TrainingPlan.TrainingPlan;
 import com.example.client.ReadyGoClient;
-import com.example.db.DBConnectionMysql;
-import com.example.db.TrainingPlanTemplateDbDeclaration;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -31,68 +29,74 @@ public class UserProfileMatchController {
     @Autowired
     ReadyGoClient readygoClient;
 
-    @RequestMapping(value="/loadUserContext/{userId}",method=RequestMethod.GET)
+    @RequestMapping(value="/loadUserContext/{userId}",method=RequestMethod.GET,produces="application/json;charset=UTF-8")
     public String loadUserContext(@PathVariable String userId) {
     	JsonObject returnJsonObject = new JsonObject();
-    	
-    	// getStatus for a training plan
-    	TrainingPlan trainingPlan = new TrainingPlanController().getPlanActive(userId);
-    	if (trainingPlan == null) {
-    		return String.format("Fail: userID: %s does not exist", userId);
-    	}
-    	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-    	String requestDate = df.format(new Date());
-    	System.out.println(requestDate);
-    	JsonObject statusJsonObject = new JsonObject();
-    	JsonArray weeksjsonArray = new JsonParser().parse(trainingPlan.getWeeks()).getAsJsonArray();
-    	for (JsonElement pa : weeksjsonArray) {
-    		JsonObject temp = pa.getAsJsonObject();
-    		
-        	Set<Map.Entry<String, JsonElement>> entries = temp.entrySet();
-        	for (Map.Entry<String, JsonElement> entry: entries) {
-        		String currDate = entry.getValue().getAsJsonObject().get("date").toString().replace("\"", "");
-        		if (currDate.equals(requestDate)) {
-        			statusJsonObject.addProperty("date", requestDate);
-        			if (entry.getValue().getAsJsonObject().has("status")) {
-        				statusJsonObject.addProperty("status", entry.getValue().getAsJsonObject().get("status").toString().replace("\"", ""));
-        			} else {
-        				statusJsonObject.addProperty("status", "completed");
-        			}
-        			break;
-        		}
-        	}
-        }
-
-    	returnJsonObject.add("isTrainingDoneToday", statusJsonObject);
-    	System.out.println(statusJsonObject.toString());
-    	
-    	// activeTrainingPlan
     	Gson gson = new Gson();
-    	trainingPlan.clearWeeks();
-    	JsonObject trainingPlanJsonObject = new JsonParser().parse(gson.toJson(trainingPlan)).getAsJsonObject();
-    	trainingPlanJsonObject.add("weeks", weeksjsonArray);
-    	returnJsonObject.add("activeTrainingPlan", trainingPlanJsonObject);
-    	//returnJsonObject.add("activeTrainingPlan", weeksjsonArray);
-    	System.out.println(trainingPlanJsonObject.toString());
 
     	// userInfo
     	Map<String , Object> map = readygoClient.getUserInfoByUserId(userId);
-    	if (!map.get("code").equals(new String("00"))) {
-    		return String.format("getUserInfoByUserId Fail: userID: %s does not exist", userId);
+    	if (!map.get("code").equals(new String("00")) || map.get("results") == null) {
+    		return String.format("{\"return\":\"failed\", \"reason\": \"userID: %s does not exist\"}", userId);
     	}
     	JsonObject userInfoJsonObject = new JsonParser().parse(gson.toJson(map.get("results"))).getAsJsonObject();
     	returnJsonObject.add("userProfile", userInfoJsonObject);
     	System.out.println(userInfoJsonObject.toString());
     	
     	// registeredMatchList
+    	JsonArray registeredMatchListjsonArray = new JsonArray();
     	Map<String , Object> map1 = readygoClient.queryReportMatchList(userId);
-    	if (!map1.get("code").equals(new String("00"))) {
-    		return String.format("queryReportMatchList Fail: userID: %s does not exist", userId);
+    	if (map1.get("code").equals(new String("00"))) {
+    		registeredMatchListjsonArray = new JsonParser().parse(gson.toJson(map1.get("results"))).getAsJsonArray();
+    	} else {
+    		System.out.println(String.format("queryReportMatchList Fail: userID: %s does not exist", userId));
     	}
-    	JsonArray registeredMatchListjsonArray = new JsonParser().parse(gson.toJson(map1.get("results"))).getAsJsonArray();
     	returnJsonObject.add("registeredMatchList", registeredMatchListjsonArray);
     	System.out.println(registeredMatchListjsonArray.toString());
-   
+    	
+    	// getStatus for a training plan
+    	JsonObject statusJsonObject = new JsonObject();
+    	JsonArray weeksjsonArray = null;
+    	TrainingPlan trainingPlan = new TrainingPlanController().getPlanActive(userId);
+    	if (trainingPlan == null) {
+    		System.out.println(String.format("Fail: userID: %s does not exist", userId));
+    	} else {
+	    	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+	    	String requestDate = df.format(new Date());
+	    	System.out.println(requestDate);
+	    	weeksjsonArray = new JsonParser().parse(trainingPlan.getWeeks()).getAsJsonArray();
+	    	for (JsonElement pa : weeksjsonArray) {
+	    		JsonObject temp = pa.getAsJsonObject();
+	    		
+	        	Set<Map.Entry<String, JsonElement>> entries = temp.entrySet();
+	        	for (Map.Entry<String, JsonElement> entry: entries) {
+	        		String currDate = entry.getValue().getAsJsonObject().get("date").toString().replace("\"", "");
+	        		if (currDate.equals(requestDate)) {
+	        			statusJsonObject.addProperty("date", requestDate);
+	        			if (entry.getValue().getAsJsonObject().has("status")) {
+	        				statusJsonObject.addProperty("status", entry.getValue().getAsJsonObject().get("status").toString().replace("\"", ""));
+	        			} else {
+	        				statusJsonObject.addProperty("status", "completed");
+	        			}
+	        			break;
+	        		}
+	        	}
+	        }
+	    	//System.out.println(statusJsonObject.toString());
+    	}
+
+    	returnJsonObject.add("isTrainingDoneToday", statusJsonObject);
+    	
+    	// activeTrainingPlan
+    	// trainingPlan.clearWeeks();
+    	JsonObject trainingPlanJsonObject = new JsonObject();
+    	if (trainingPlan != null) {
+        	trainingPlanJsonObject = new JsonParser().parse(gson.toJson(trainingPlan)).getAsJsonObject();
+        	trainingPlanJsonObject.add("weeks", weeksjsonArray);
+        	System.out.println(trainingPlanJsonObject.toString());
+    	}
+
+    	returnJsonObject.add("activeTrainingPlan", trainingPlanJsonObject);
     	return returnJsonObject.toString();
     }
     
