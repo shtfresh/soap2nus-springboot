@@ -152,8 +152,8 @@ public class TrainingPlanController {
         			}
         		
         		}
-				startTime = startTime.plusDays(1);
 				entry.getValue().getAsJsonObject().addProperty("date", startTime.toString());
+				startTime = startTime.plusDays(1);
         	}
     	}
     	

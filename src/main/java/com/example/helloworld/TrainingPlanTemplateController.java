@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.TrainingPlanTemplate.TrainingPlanTemplate;
@@ -35,9 +36,10 @@ public class TrainingPlanTemplateController {
     }
     
     @RequestMapping(value="/tptemplates",method=RequestMethod.GET)
-    public TrainingPlanTemplate[] listAllPlanTemplate() {
+    public TrainingPlanTemplate[] listAllPlanTemplate(@RequestParam(name="tptCategory", required=false) String tptCategory, 
+    		@RequestParam(name="tptType", required=false) String tptType) {
     	checkConnection(edao);
-    	return edao.listAllPlanTemplate().toArray(new TrainingPlanTemplate[0]);
+    	return edao.listAllPlanTemplate(tptCategory, tptType).toArray(new TrainingPlanTemplate[0]);
     }
     
     @RequestMapping(value="/tptemplates",method=RequestMethod.POST)
@@ -56,6 +58,7 @@ public class TrainingPlanTemplateController {
     	result = edao.add(new TrainingPlanTemplate(tptItemJsonObject.get("tptId").toString(),
     			tptItemJsonObject.get("tptTile").toString(),
     			tptItemJsonObject.get("tptType").toString(),
+    			tptItemJsonObject.get("tptCategory").toString(),
     			tptItemJsonObject.get("tptDescrition").toString(),
     			tptItemJsonObject.get("publishedAt").toString(),
     			tptItemJsonObject.get("weeks").toString()));
@@ -76,6 +79,7 @@ public class TrainingPlanTemplateController {
     	result = edao.update(tptId, new TrainingPlanTemplate(tptItemJsonObject.get("tptId").toString(),
     			tptItemJsonObject.get("tptTile").toString(),
     			tptItemJsonObject.get("tptType").toString(),
+    			tptItemJsonObject.get("tptCategory").toString(),
     			tptItemJsonObject.get("tptDescrition").toString(),
     			tptItemJsonObject.get("publishedAt").toString(),
     			tptItemJsonObject.get("weeks").toString()));

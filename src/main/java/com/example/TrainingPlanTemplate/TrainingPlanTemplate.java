@@ -7,15 +7,17 @@ public class TrainingPlanTemplate {
     private final String tptId;
     private final String tptTile;
     private final String tptType;
+    private final String tptCategory;
     private final String tptDescrition;
     private final String publishedAt;
     @JsonRawValue
     private final String weeks;
     
-    public TrainingPlanTemplate(String tptId, String tptTile, String tptType, String tptDescrition, String publishedAt, String weeks) {
+    public TrainingPlanTemplate(String tptId, String tptTile, String tptType, String tptCategory, String tptDescrition, String publishedAt, String weeks) {
         this.tptId = tptId;
         this.tptTile = tptTile;
         this.tptType = tptType;
+        this.tptCategory = tptCategory;
         this.tptDescrition = tptDescrition;
         this.publishedAt = publishedAt;
         this.weeks = weeks;
@@ -32,6 +34,10 @@ public class TrainingPlanTemplate {
     
     public String gettptType() {
         return this.tptType;
+    }
+    
+    public String gettptCategory() {
+        return this.tptCategory;
     }
     
     public String gettptDescrition() {

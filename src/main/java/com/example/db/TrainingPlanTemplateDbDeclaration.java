@@ -27,7 +27,8 @@ public class TrainingPlanTemplateDbDeclaration {
 				//System.out.print(weeks);
 				resultList.add(
 	                    new TrainingPlanTemplate(rs.getString("tptId"), rs.getString("tptTile"), 
-	                        rs.getString("tptType"), rs.getString("tptDescrition"), rs.getString("publishedAt"),rs.getString("weeks"))
+	                        rs.getString("tptType"), rs.getString("tptCategory"), 
+	                        rs.getString("tptDescrition"), rs.getString("publishedAt"),rs.getString("weeks"))
 	            );
 			}
 		} catch (SQLException e) {
@@ -40,7 +41,7 @@ public class TrainingPlanTemplateDbDeclaration {
 
     public boolean add(TrainingPlanTemplate tptItem){
 		String insertTableSQL = "INSERT INTO t_oracle_tpt "
-				+ "(tptId, tptTile, tptType, tptDescrition, publishedAt, weeks) "
+				+ "(tptId, tptTile, tptType, tptCategory, tptDescrition, publishedAt, weeks) "
 				+ "VALUES(?,?,?,?,?,?)";
 
 		try (PreparedStatement preparedStatement = this.conn
@@ -49,6 +50,7 @@ public class TrainingPlanTemplateDbDeclaration {
 			preparedStatement.setString(1, tptItem.gettptId().replace("\"", ""));
 			preparedStatement.setString(2, tptItem.gettptTile().replace("\"", ""));
 			preparedStatement.setString(3, tptItem.gettptType().replace("\"", ""));
+			preparedStatement.setString(3, tptItem.gettptCategory().replace("\"", ""));
 			preparedStatement.setString(4, tptItem.gettptDescrition().replace("\"", ""));
 			preparedStatement.setString(5, tptItem.getPublishedAt().replace("\"", ""));
 			preparedStatement.setString(6, tptItem.getWeeks());
@@ -66,11 +68,12 @@ public class TrainingPlanTemplateDbDeclaration {
     }
     
     public boolean update(String tptId, TrainingPlanTemplate tptItem){
-		String updateTableSQL = "UPDATE t_oracle_tpt SET tptTile=?, tptType=?, tptDescrition=?, publishedAt=?, weeks=? WHERE tptId=?";
+		String updateTableSQL = "UPDATE t_oracle_tpt SET tptTile=?, tptType=?, tptCategory=?, tptDescrition=?, publishedAt=?, weeks=? WHERE tptId=?";
 		try (PreparedStatement preparedStatement = this.conn
 				.prepareStatement(updateTableSQL);) {
 			preparedStatement.setString(1, tptItem.gettptTile().replace("\"", ""));
 			preparedStatement.setString(2, tptItem.gettptType().replace("\"", ""));
+			preparedStatement.setString(2, tptItem.gettptCategory().replace("\"", ""));
 			preparedStatement.setString(3, tptItem.gettptDescrition().replace("\"", ""));
 			preparedStatement.setString(4, tptItem.getPublishedAt().replace("\"", ""));
 			preparedStatement.setString(5, tptItem.getWeeks());
@@ -101,8 +104,18 @@ public class TrainingPlanTemplateDbDeclaration {
         }    
     }
     
-    public List<TrainingPlanTemplate> listAllPlanTemplate(){
-		String queryStr = "SELECT * FROM t_oracle_tpt";
+    public List<TrainingPlanTemplate> listAllPlanTemplate(String tptCategory, String tptType) {
+    	String queryStr = "SELECT * FROM t_oracle_tpt";
+
+    	if (tptCategory != null && tptType != null) {
+    		queryStr = queryStr + String.format(" where tptCategory = \"%s\" and tptType = \"%s\"",
+    				tptCategory, tptType);
+    	} else if (tptCategory != null && tptType == null) {
+    		queryStr = queryStr + String.format(" where tptCategory = \"%s\"", tptCategory);
+    	} else if (tptCategory == null && tptType != null) {
+    		queryStr = queryStr + String.format(" where tptType = \"%s\"", tptType);
+    	}
+
 		List<TrainingPlanTemplate> resultList = this.query(queryStr);
         return resultList;
     }
