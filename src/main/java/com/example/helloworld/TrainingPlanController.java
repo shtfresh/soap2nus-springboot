@@ -64,6 +64,7 @@ public class TrainingPlanController {
     
     @RequestMapping(value="/tp",method=RequestMethod.POST)
     public TrainingPlan createPlan(@RequestBody String tpItem) {
+    	checkConnection(edaoTp);
     	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         TrainingPlanTemplateEnumDbDeclaration edaoTpEnum = new TrainingPlanTemplateEnumDbDeclaration();
     	JsonObject tptEnumJsonObject = edaoTpEnum.getPlanTemplateEnum();
@@ -80,10 +81,18 @@ public class TrainingPlanController {
     	//System.out.println(tpItemJsonObject.get("tptId"));
         TrainingPlanTemplateDbDeclaration edaoTpt = new TrainingPlanTemplateDbDeclaration();
     	tpt = edaoTpt.getPlanTemplate(tpItemJsonObject.get("tptId").toString().replace("\"", ""));
-    	
     	if (tpt == null) {
     		//return "Fail: "+tpItemJsonObject.get("tptId").toString()+" Not Found in TrainingPlan Template!";
     		return null;
+    	}
+    	
+    	String tpOwnerId = tpItemJsonObject.get("tpOwnerId").toString().replace("\"", "");
+    	TrainingPlan tp = edaoTp.getActivePlan(tpOwnerId);
+    	if (tp != null) {
+    		// update status to inactive
+    		String sqlString = String.format("UPDATE t_oracle_tp SET tpStatus = \"%s\" where tpId = \"%s\"", 
+     				"inactive", tp.gettpId());
+    		edaoTp.update(sqlString);
     	}
 
     	LocalDate startTime = LocalDate.parse(tpItemJsonObject.get("tpStart").toString().replace("\"", ""));
@@ -160,7 +169,6 @@ public class TrainingPlanController {
     	//System.out.println("******************");
     	System.out.println(weeksjsonArray.toString());
     	boolean result;
-    	checkConnection(edaoTp);
         
     	TrainingPlan tpNew = new TrainingPlan(
     			tpItemJsonObject.get("tpId").toString().replace("\"", ""),
@@ -199,7 +207,11 @@ public class TrainingPlanController {
     	JsonObject returnJsonObject = new JsonObject();
     	boolean result;
     	String tpOwnerId = tpItemJsonObject.get("tpOwnerId").toString().replace("\"", "");
-    	TrainingPlan tp = edaoTp.getAllPlan(tpOwnerId).get(0);
+    	//TrainingPlan tp = edaoTp.getAllPlan(tpOwnerId).get(0);
+    	TrainingPlan tp = edaoTp.getActivePlan(tpOwnerId);
+    	if (tp == null) {
+    		return String.format("{\"return\": \"ignored\", \"reason\": \" %s Active TP not found\"}", tpOwnerId);
+    	}
     	String requestDate = tpItemJsonObject.get("tpDate").toString().replace("\"", "");
     	/*
     	LocalDate tpStartTime = LocalDate.parse(tp.gettpStart().replace("\"", ""));
@@ -228,7 +240,7 @@ public class TrainingPlanController {
         				mapNeedModify.put("index", Integer.toString(count));
         				float kilometers = Float.parseFloat((tpItemJsonObject.get("kilometers").toString().replace("\"", "")));
 	    				float minKilometre = Float.parseFloat(entry.getValue().getAsJsonObject().get("minKilometre").toString().replace("\"", ""));
-	    				float maxKilometre = Float.parseFloat(entry.getValue().getAsJsonObject().get("maxKilometre").toString().replace("\"", ""));
+	    				//float maxKilometre = Float.parseFloat(entry.getValue().getAsJsonObject().get("maxKilometre").toString().replace("\"", ""));
 	    				//System.out.println("kilometers = "+kilometers+" minKilometre = "+minKilometre);
 	    				if (kilometers > Float.parseFloat(entry.getValue().getAsJsonObject().get("finished").toString().replace("\"", ""))) {
 	    					entry.getValue().getAsJsonObject().addProperty("finished", Float.toString(kilometers));
@@ -266,7 +278,7 @@ public class TrainingPlanController {
          				Integer.parseInt(mapNeedModify.get("index")), mapNeedModify.get("day"), mapNeedModify.get("status"), tpOwnerId);
         	}
     	} else {
-    		return String.format("{\"return\": \"failed\", \"reason\": \"Request Date %s not found\"}", requestDate);
+    		return String.format("{\"return\": \"failed\", \"reason\": \"Request Date %s not found or with no task\"}", requestDate);
     	}
     	
     	//System.out.println(weeksjsonArray.toString());

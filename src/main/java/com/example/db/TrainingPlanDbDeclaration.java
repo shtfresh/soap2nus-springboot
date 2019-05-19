@@ -80,17 +80,11 @@ public class TrainingPlanDbDeclaration {
             return false;
 		}
     }
-    /*
-    public boolean update(String tptId, TrainingPlanTemplate tptItem){
-		String updateTableSQL = "UPDATE t_oracle_tpt SET tptTile=?, tptType=?, tptDescrition=?, publishedAt=?, weeks=? WHERE tptId=?";
+    
+    public boolean update(String updateTableSQL){
+
 		try (PreparedStatement preparedStatement = this.conn
 				.prepareStatement(updateTableSQL);) {
-			preparedStatement.setString(1, tptItem.gettptTile().replace("\"", ""));
-			preparedStatement.setString(2, tptItem.gettptType().replace("\"", ""));
-			preparedStatement.setString(3, tptItem.gettptDescrition().replace("\"", ""));
-			preparedStatement.setString(4, tptItem.getPublishedAt().replace("\"", ""));
-			preparedStatement.setString(5, tptItem.getWeeks());
-			preparedStatement.setString(6, tptId);
 
 			preparedStatement.executeUpdate();
             return true;
@@ -101,8 +95,7 @@ public class TrainingPlanDbDeclaration {
             System.out.println("Update Error: "	+ e.getMessage());
             return false;            
 		}
-    
-    }*/
+    }
     
     public TrainingPlan getActivePlan(String tpOwnerId){
 		String queryStr = "SELECT * FROM t_oracle_tp WHERE tpOwnerId=" + "\""+tpOwnerId+"\"" + "and tpStatus =\"active\"";
