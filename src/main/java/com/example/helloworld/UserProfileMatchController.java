@@ -124,15 +124,21 @@ public class UserProfileMatchController {
     	}		
     }*/
     
-    @RequestMapping(value="/userProfile/{userId}",method=RequestMethod.PUT)
+    @RequestMapping(value="/userProfile/{userId}",method=RequestMethod.PUT,produces="application/json;charset=UTF-8" )
     public String updateUserInfo(@PathVariable String userId, @RequestBody String userInfo) {
     	JsonObject returnJsonObject = new JsonObject();
     	JsonObject upUserInfoJsonObject = new JsonParser().parse(userInfo).getAsJsonObject();
-    	Map<String , Object> map = readygoClient.updateUser(Integer.valueOf(userId), 
-    			upUserInfoJsonObject.get("age").toString().replace("\"", ""),
-    			Integer.valueOf(upUserInfoJsonObject.get("gender").toString().replace("\"", "")), 
-    			upUserInfoJsonObject.get("height").toString().replace("\"", ""), 
-    			upUserInfoJsonObject.get("weight").toString().replace("\"", ""));
+    	Map<String , Object> map = null;
+    
+    	try {
+    		map = readygoClient.updateUser(Integer.valueOf(userId),
+        			upUserInfoJsonObject.get("age").toString().replace("\"", ""),
+        			Integer.valueOf(upUserInfoJsonObject.get("gender").toString().replace("\"", "")),
+        			upUserInfoJsonObject.get("height").toString().replace("\"", ""),
+        			upUserInfoJsonObject.get("weight").toString().replace("\"", ""));
+    	} catch (Exception e) {
+    		return Results.failReturnJsonObject(returnJsonObject, "fail: update user profile").toString();
+    	}
     	if (map.get("code").equals(new String("00"))) {
     		return Results.successReturnJsonObject(returnJsonObject, null).toString();
     	} else {
