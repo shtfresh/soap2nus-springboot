@@ -3,6 +3,7 @@ package com.example.helloworld;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.sql.SQLException;
@@ -18,7 +19,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.db.TrainingPlanTemplateDbDeclaration;
+import com.example.Results.Results;
 import com.example.TrainingPlan.TrainingPlan;
+import com.example.TrainingPlan.TrainingPlanResponse;
+import com.example.TrainingPlan.TrainingPlanResponseArray;
 import com.example.TrainingPlanTemplate.TrainingPlanTemplate;
 import com.example.db.DBConnectionMysql;
 import com.example.db.TrainingPlanDbDeclaration;
@@ -38,32 +42,44 @@ public class TrainingPlanController {
 
     @ResponseBody
     @RequestMapping(value="/activetp/{tpOwnerId}",method=RequestMethod.GET)
-    public TrainingPlan getPlanActive(@PathVariable String tpOwnerId) {
+    public TrainingPlanResponse getPlanActive(@PathVariable String tpOwnerId) {
     	checkConnection(edaoTp);
     	TrainingPlan tp;
         tp = edaoTp.getActivePlan(tpOwnerId);
-        return tp;
+        if (tp != null) {
+        	return new TrainingPlanResponse("00", "success", tp);
+        } else {
+        	return new TrainingPlanResponse("01", String.format("fail: %s no active tp", tpOwnerId), tp);
+        }
     }
     
     @ResponseBody
     @RequestMapping(value="/alltp/{tpOwnerId}",method=RequestMethod.GET)
-    public TrainingPlan[] getAllPlan(@PathVariable String tpOwnerId) {
+    public TrainingPlanResponseArray getAllPlan(@PathVariable String tpOwnerId) {
     	checkConnection(edaoTp);
-    	return edaoTp.getAllPlan(tpOwnerId).toArray(new TrainingPlan[0]);
+    	List<TrainingPlan> tplist = edaoTp.getAllPlan(tpOwnerId);
+    	if (tplist != null) {
+    		return new TrainingPlanResponseArray("00", "success", tplist.toArray(new TrainingPlan[0]));
+    	} else {
+    		return new TrainingPlanResponseArray("01",  String.format("fail: %s no tp", tpOwnerId), null);
+    	}
     }
     
     @ResponseBody
     @RequestMapping(value="/tp/{tpId}",method=RequestMethod.GET)
-    public TrainingPlan getPlanOnTP(@PathVariable String tpId) {
+    public TrainingPlanResponse getPlanOnTP(@PathVariable String tpId) {
     	checkConnection(edaoTp);
     	TrainingPlan tp;
         tp = edaoTp.getPlanOnTP(tpId);
-        //System.out.println(tpt.getWeeks());
-        return tp;
+        if (tp != null) {
+        	return new TrainingPlanResponse("00", "success", tp);
+        } else {
+        	return new TrainingPlanResponse("01", String.format("fail: %s no such tp", tpId), tp);
+        }
     }
     
     @RequestMapping(value="/tp",method=RequestMethod.POST)
-    public TrainingPlan createPlan(@RequestBody String tpItem) {
+    public TrainingPlanResponse createPlan(@RequestBody String tpItem) {
     	checkConnection(edaoTp);
     	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         TrainingPlanTemplateEnumDbDeclaration edaoTpEnum = new TrainingPlanTemplateEnumDbDeclaration();
@@ -83,7 +99,7 @@ public class TrainingPlanController {
     	tpt = edaoTpt.getPlanTemplate(tpItemJsonObject.get("tptId").toString().replace("\"", ""));
     	if (tpt == null) {
     		//return "Fail: "+tpItemJsonObject.get("tptId").toString()+" Not Found in TrainingPlan Template!";
-    		return null;
+    		return new TrainingPlanResponse("01", String.format("fail: %s tpt not found", tpItemJsonObject.get("tptId").toString()), null);
     	}
     	
     	String tpOwnerId = tpItemJsonObject.get("tpOwnerId").toString().replace("\"", "");
@@ -154,7 +170,7 @@ public class TrainingPlanController {
             			entry.getValue().getAsJsonObject().addProperty("maxKilometre", division(maxKilometre, 1000));
         				entry.getValue().getAsJsonObject().addProperty("finished", "0");
         					
-        				entry.getValue().getAsJsonObject().addProperty("status", "planed");
+        				entry.getValue().getAsJsonObject().addProperty("status", "planned");
         				//System.out.println(startTime.plusDays(1).toString());
         				//tpItemJsonObject.get("tpStart").toString()
         				//System.out.println(entry.getValue().getAsJsonObject().toString());
@@ -190,9 +206,9 @@ public class TrainingPlanController {
     
     	result = edaoTp.add(tpNew);
     	if (result) {
-    		return tpNew;
+    		return new TrainingPlanResponse("00", "success", tpNew);
     	} else {
-    		return null;
+    		return new TrainingPlanResponse("01", "fail: add tp", tpNew);
     	}
     }
     
@@ -202,15 +218,14 @@ public class TrainingPlanController {
     	
     	Map<String, String> mapNeedModify = new HashMap<String, String>();
     	checkConnection(edaoTp);
-    	
-    	JsonObject tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
     	JsonObject returnJsonObject = new JsonObject();
+    	JsonObject tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
+    	JsonObject resultJsonObject = new JsonObject();
     	boolean result;
     	String tpOwnerId = tpItemJsonObject.get("tpOwnerId").toString().replace("\"", "");
-    	//TrainingPlan tp = edaoTp.getAllPlan(tpOwnerId).get(0);
     	TrainingPlan tp = edaoTp.getActivePlan(tpOwnerId);
     	if (tp == null) {
-    		return String.format("{\"return\": \"ignored\", \"reason\": \" %s Active TP not found\"}", tpOwnerId);
+    		return Results.failReturnJsonObject(returnJsonObject, String.format("fail: %s no active tp", tpOwnerId)).toString();
     	}
     	String requestDate = tpItemJsonObject.get("tpDate").toString().replace("\"", "");
     	/*
@@ -235,7 +250,7 @@ public class TrainingPlanController {
         			//System.out.println(entry.getValue().getAsJsonObject().get("date").toString().replace("\"", ""));
         			//System.out.println(tpItemJsonObject.get("tpDate").toString());
         			if (entry.getValue().getAsJsonObject().get("date").toString().replace("\"", "").equals(requestDate)) {
-        				returnJsonObject.addProperty("date", requestDate);
+        				resultJsonObject.addProperty("date", requestDate);
         				mapNeedModify.put("day", entry.getKey());
         				mapNeedModify.put("index", Integer.toString(count));
         				float kilometers = Float.parseFloat((tpItemJsonObject.get("kilometers").toString().replace("\"", "")));
@@ -251,11 +266,11 @@ public class TrainingPlanController {
 		        			//System.out.println(entry.getValue().getAsJsonObject().get("status").toString());
 		        			entry.getValue().getAsJsonObject().addProperty("status", "completed");
 		        			mapNeedModify.put("status", "completed");
-		        			returnJsonObject.addProperty("status", "completed");
+		        			resultJsonObject.addProperty("status", "completed");
 		        		} else {
 		        			entry.getValue().getAsJsonObject().addProperty("status", "incompleted");
 		        			mapNeedModify.put("status", "incompleted");
-		        			returnJsonObject.addProperty("status", "incompleted");
+		        			resultJsonObject.addProperty("status", "incompleted");
 		        		}
 		        	}
         		}
@@ -278,7 +293,7 @@ public class TrainingPlanController {
          				Integer.parseInt(mapNeedModify.get("index")), mapNeedModify.get("day"), mapNeedModify.get("status"), tpOwnerId);
         	}
     	} else {
-    		return String.format("{\"return\": \"failed\", \"reason\": \"Request Date %s not found or with no task\"}", requestDate);
+    		return Results.failReturnJsonObject(returnJsonObject, String.format("fail: request date %s not found or with no task", requestDate)).toString();
     	}
     	
     	//System.out.println(weeksjsonArray.toString());
@@ -286,24 +301,24 @@ public class TrainingPlanController {
     	//result = edaoTpEnum.update(tpOwnerId, weeksjsonArray.toString());
     	TrainingPlanTemplateEnumDbDeclaration edaoTpEnum = new TrainingPlanTemplateEnumDbDeclaration();
     	result = edaoTpEnum.updateNew(sqlString);
-        if (result && returnJsonObject.entrySet().size() != 0) {
-        	return returnJsonObject.toString();
+        if (result && resultJsonObject.entrySet().size() != 0) {
+        	return Results.successReturnJsonObject(returnJsonObject, resultJsonObject).toString();
         } else {
-        	return "{\"return\": \"failed\"}";
+    		return Results.failReturnJsonObject(returnJsonObject, "fail: update status").toString();
         }
     }
     
     @RequestMapping(value="/tp/{tpId}", method=RequestMethod.DELETE)
     public String deletePlanTemplate(@PathVariable String tpId) {
     	checkConnection(edaoTp);
+    	JsonObject returnJsonObject = new JsonObject();
     	boolean result;
         result = edaoTp.deletePlan(tpId);
         if (result) {
-        	return "success";
+        	return Results.successReturnJsonObject(returnJsonObject, null).toString();
         } else {
-        	return "fail";
+        	return Results.failReturnJsonObject(returnJsonObject, "fail: delete tp").toString();
         }
-       
     }
     
 	public static String division(int a ,int b){
@@ -311,7 +326,6 @@ public class TrainingPlanController {
         float num =(float)a/b;
 
         DecimalFormat df = new DecimalFormat("0.0");
-
         result = df.format(num);
 
         return result;

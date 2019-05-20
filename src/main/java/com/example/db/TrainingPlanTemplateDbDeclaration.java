@@ -93,11 +93,9 @@ public class TrainingPlanTemplateDbDeclaration {
     
     public TrainingPlanTemplate getPlanTemplate(String tptId){
 		String queryStr = "SELECT * FROM t_oracle_tpt WHERE tptId=" + "\""+tptId+"\"";
-		//System.out.println(queryStr);
 		List<TrainingPlanTemplate> resultList = this.query(queryStr);
                 
 		if (resultList.size() > 0) {
-			//System.out.println(resultList.get(0));
 			return resultList.get(0);
 		} else {
             return null;
@@ -117,7 +115,11 @@ public class TrainingPlanTemplateDbDeclaration {
     	}
 
 		List<TrainingPlanTemplate> resultList = this.query(queryStr);
-        return resultList;
+		if (resultList.size() > 0) {
+	        return resultList;
+		} else {
+            return null;
+        }
     }
     
     public boolean deletePlanTemplate(String tptId){

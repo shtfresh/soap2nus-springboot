@@ -99,11 +99,9 @@ public class TrainingPlanDbDeclaration {
     
     public TrainingPlan getActivePlan(String tpOwnerId){
 		String queryStr = "SELECT * FROM t_oracle_tp WHERE tpOwnerId=" + "\""+tpOwnerId+"\"" + "and tpStatus =\"active\"";
-		//System.out.println(queryStr);
 		List<TrainingPlan> resultList = this.query(queryStr);
                 
 		if (resultList.size() > 0) {
-			//System.out.println(resultList.get(0));
 			return resultList.get(0);
 		} else {
             return null;
@@ -113,7 +111,12 @@ public class TrainingPlanDbDeclaration {
     public List<TrainingPlan> getAllPlan(String tpOwnerId){
 		String queryStr = "SELECT * FROM t_oracle_tp WHERE tpOwnerId=" + "\""+tpOwnerId+"\"";
 		List<TrainingPlan> resultList = this.query(queryStr);
-        return resultList;
+		
+		if (resultList.size() > 0) {
+	        return resultList;
+		} else {
+            return null;
+        }
     }
     
     public TrainingPlan getPlanOnTP(String tpId){

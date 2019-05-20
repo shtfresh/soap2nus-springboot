@@ -1,6 +1,7 @@
 package com.example.helloworld;
 
 import java.text.SimpleDateFormat;
+
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -12,16 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.Results.Results;
 import com.example.TrainingPlan.TrainingPlan;
 import com.example.client.ReadyGoClient;
-
+import com.example.db.TrainingPlanDbDeclaration;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import com.example.helloworld.TrainingPlanController;
 
 @RestController
 public class UserProfileMatchController {
@@ -32,32 +32,45 @@ public class UserProfileMatchController {
     @RequestMapping(value="/loadUserContext/{userId}",method=RequestMethod.GET,produces="application/json;charset=UTF-8")
     public String loadUserContext(@PathVariable String userId) {
     	JsonObject returnJsonObject = new JsonObject();
+    	JsonObject resultJsonObject = new JsonObject();
     	Gson gson = new Gson();
+    	Map<String , Object> map = null;
 
     	// userInfo
-    	Map<String , Object> map = readygoClient.getUserInfoByUserId(userId);
+    	try {
+    		map = readygoClient.getUserInfoByUserId(userId);
+    	} catch (Exception e) {
+    		return Results.failReturnJsonObject(returnJsonObject, String.format("fail: getUserInfoByUserId inaccessible", userId)).toString();
+    	}
+    	
     	if (!map.get("code").equals(new String("00")) || map.get("results") == null) {
-    		return String.format("{\"return\":\"failed\", \"reason\": \"userID: %s does not exist\"}", userId);
+    		return Results.failReturnJsonObject(returnJsonObject, String.format("fail: userID %s does not exist", userId)).toString();
     	}
     	JsonObject userInfoJsonObject = new JsonParser().parse(gson.toJson(map.get("results"))).getAsJsonObject();
-    	returnJsonObject.add("userProfile", userInfoJsonObject);
+    	resultJsonObject.add("userProfile", userInfoJsonObject);
     	System.out.println(userInfoJsonObject.toString());
     	
     	// registeredMatchList
     	JsonArray registeredMatchListjsonArray = new JsonArray();
-    	Map<String , Object> map1 = readygoClient.queryReportMatchList(userId);
+    	Map<String , Object> map1 = null;
+    	try {
+    		map1 = readygoClient.queryReportMatchList(userId);
+    	} catch (Exception e) {
+    		System.out.println(String.format("queryReportMatchList Fail"));
+    	}
     	if (map1.get("code").equals(new String("00"))) {
     		registeredMatchListjsonArray = new JsonParser().parse(gson.toJson(map1.get("results"))).getAsJsonArray();
     	} else {
     		System.out.println(String.format("queryReportMatchList Fail: userID: %s does not exist", userId));
     	}
-    	returnJsonObject.add("registeredMatchList", registeredMatchListjsonArray);
+    	resultJsonObject.add("registeredMatchList", registeredMatchListjsonArray);
     	System.out.println(registeredMatchListjsonArray.toString());
     	
     	// getStatus for a training plan
     	JsonObject statusJsonObject = new JsonObject();
     	JsonArray weeksjsonArray = null;
-    	TrainingPlan trainingPlan = new TrainingPlanController().getPlanActive(userId);
+    	TrainingPlanDbDeclaration edaoTp = new TrainingPlanDbDeclaration();
+    	TrainingPlan trainingPlan = edaoTp.getActivePlan(userId);
     	if (trainingPlan == null) {
     		System.out.println(String.format("Fail: userID: %s does not exist", userId));
     	} else {
@@ -85,7 +98,7 @@ public class UserProfileMatchController {
 	    	//System.out.println(statusJsonObject.toString());
     	}
 
-    	returnJsonObject.add("isTrainingDoneToday", statusJsonObject);
+    	resultJsonObject.add("isTrainingDoneToday", statusJsonObject);
     	
     	// activeTrainingPlan
     	// trainingPlan.clearWeeks();
@@ -96,8 +109,8 @@ public class UserProfileMatchController {
         	System.out.println(trainingPlanJsonObject.toString());
     	}
 
-    	returnJsonObject.add("activeTrainingPlan", trainingPlanJsonObject);
-    	return returnJsonObject.toString();
+    	resultJsonObject.add("activeTrainingPlan", trainingPlanJsonObject);
+    	return Results.successReturnJsonObject(returnJsonObject, resultJsonObject).toString();
     }
     
     /*
@@ -113,6 +126,7 @@ public class UserProfileMatchController {
     
     @RequestMapping(value="/userProfile/{userId}",method=RequestMethod.PUT)
     public String updateUserInfo(@PathVariable String userId, @RequestBody String userInfo) {
+    	JsonObject returnJsonObject = new JsonObject();
     	JsonObject upUserInfoJsonObject = new JsonParser().parse(userInfo).getAsJsonObject();
     	Map<String , Object> map = readygoClient.updateUser(Integer.valueOf(userId), 
     			upUserInfoJsonObject.get("age").toString().replace("\"", ""),
@@ -120,9 +134,9 @@ public class UserProfileMatchController {
     			upUserInfoJsonObject.get("height").toString().replace("\"", ""), 
     			upUserInfoJsonObject.get("weight").toString().replace("\"", ""));
     	if (map.get("code").equals(new String("00"))) {
-    		return (String) map.get("msg");
+    		return Results.successReturnJsonObject(returnJsonObject, null).toString();
     	} else {
-    		return "Failed";
+    		return Results.failReturnJsonObject(returnJsonObject, "fail: update user profile").toString();
     	}
     }
 }
