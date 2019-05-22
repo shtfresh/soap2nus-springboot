@@ -38,12 +38,12 @@ public class TrainingPlanController {
 
     private final AtomicLong counter = new AtomicLong();
     
-    TrainingPlanDbDeclaration edaoTp = new TrainingPlanDbDeclaration();
+    //TrainingPlanDbDeclaration edaoTp = new TrainingPlanDbDeclaration();
+    static TrainingPlanDbDeclaration edaoTp = new TrainingPlanDbDeclaration();
 
     @ResponseBody
     @RequestMapping(value="/activetp/{tpOwnerId}",method=RequestMethod.GET)
     public TrainingPlanResponse getPlanActive(@PathVariable String tpOwnerId) {
-    	checkConnection(edaoTp);
     	TrainingPlan tp;
         tp = edaoTp.getActivePlan(tpOwnerId);
         if (tp != null) {
@@ -56,7 +56,6 @@ public class TrainingPlanController {
     @ResponseBody
     @RequestMapping(value="/alltp/{tpOwnerId}",method=RequestMethod.GET)
     public TrainingPlanResponseArray getAllPlan(@PathVariable String tpOwnerId) {
-    	checkConnection(edaoTp);
     	List<TrainingPlan> tplist = edaoTp.getAllPlan(tpOwnerId);
     	if (tplist != null) {
     		return new TrainingPlanResponseArray("00", "success", tplist.toArray(new TrainingPlan[0]));
@@ -68,7 +67,6 @@ public class TrainingPlanController {
     @ResponseBody
     @RequestMapping(value="/tp/{tpId}",method=RequestMethod.GET)
     public TrainingPlanResponse getPlanOnTP(@PathVariable String tpId) {
-    	checkConnection(edaoTp);
     	TrainingPlan tp;
         tp = edaoTp.getPlanOnTP(tpId);
         if (tp != null) {
@@ -80,7 +78,6 @@ public class TrainingPlanController {
     
     @RequestMapping(value="/tp",method=RequestMethod.POST)
     public TrainingPlanResponse createPlan(@RequestBody String tpItem) {
-    	checkConnection(edaoTp);
     	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         TrainingPlanTemplateEnumDbDeclaration edaoTpEnum = new TrainingPlanTemplateEnumDbDeclaration();
     	JsonObject tptEnumJsonObject = edaoTpEnum.getPlanTemplateEnum();
@@ -217,7 +214,6 @@ public class TrainingPlanController {
     public String updatePlanStatus(@RequestBody String tpItem) {
     	
     	Map<String, String> mapNeedModify = new HashMap<String, String>();
-    	checkConnection(edaoTp);
     	JsonObject returnJsonObject = new JsonObject();
     	JsonObject tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
     	JsonObject resultJsonObject = new JsonObject();
@@ -308,9 +304,8 @@ public class TrainingPlanController {
         }
     }
     
-    @RequestMapping(value="/tp/{tpId}", method=RequestMethod.DELETE)
+    @RequestMapping(value="/tp/{tpId}", method=RequestMethod.DELETE, produces="application/json;charset=UTF-8")
     public String deletePlanTemplate(@PathVariable String tpId) {
-    	checkConnection(edaoTp);
     	JsonObject returnJsonObject = new JsonObject();
     	boolean result;
         result = edaoTp.deletePlan(tpId);
@@ -331,14 +326,4 @@ public class TrainingPlanController {
         return result;
 
     }
-	
-	public static void checkConnection(TrainingPlanDbDeclaration tp) {
-    	try {
-			if(tp.conn.isClosed()) {
-				tp.conn = DBConnectionMysql.getInstance().getConnection();
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
 }

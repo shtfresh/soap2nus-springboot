@@ -28,11 +28,10 @@ public class TrainingPlanTemplateController {
 
     private final AtomicLong counter = new AtomicLong();
     
-    TrainingPlanTemplateDbDeclaration edao = new TrainingPlanTemplateDbDeclaration();
+    static TrainingPlanTemplateDbDeclaration edao = new TrainingPlanTemplateDbDeclaration();
 
     @RequestMapping(value="/tptemplates/{tptId}",method=RequestMethod.GET)
     public TrainingPlanTemplateResponse getPlanTemplate(@PathVariable String tptId) {
-    	checkConnection(edao);
     	TrainingPlanTemplate tpt;
         tpt = edao.getPlanTemplate(tptId);
         if (tpt != null) {
@@ -45,7 +44,6 @@ public class TrainingPlanTemplateController {
     @RequestMapping(value="/tptemplates",method=RequestMethod.GET)
     public TrainingPlanTemplateResponseArray listAllPlanTemplate(@RequestParam(name="tptCategory", required=false) String tptCategory, 
     		@RequestParam(name="tptType", required=false) String tptType) {
-    	checkConnection(edao);
     	List<TrainingPlanTemplate> tplist = edao.listAllPlanTemplate(tptCategory, tptType);
     	if (tplist != null) {
     		return new TrainingPlanTemplateResponseArray("00", "success", tplist.toArray(new TrainingPlanTemplate[0]));
@@ -54,9 +52,8 @@ public class TrainingPlanTemplateController {
     	}
     }
     
-    @RequestMapping(value="/tptemplates",method=RequestMethod.POST)
+    @RequestMapping(value="/tptemplates",method=RequestMethod.POST, produces="application/json;charset=UTF-8")
     public String createPlanTemplate(@RequestBody String tptItem) {
-    	checkConnection(edao);
     	JsonObject returnJsonObject = new JsonObject();
     	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     	
@@ -82,10 +79,9 @@ public class TrainingPlanTemplateController {
         }
     }
     
-    @RequestMapping(value="/tptemplates/{tptId}",method=RequestMethod.PUT)
+    @RequestMapping(value="/tptemplates/{tptId}",method=RequestMethod.PUT, produces="application/json;charset=UTF-8")
     public String updatePlanTemplate(@PathVariable String tptId, @RequestBody String tptItem) {
     	JsonObject returnJsonObject = new JsonObject();
-    	checkConnection(edao);
     	JsonObject tptItemJsonObject = new JsonParser().parse(tptItem).getAsJsonObject();
     	boolean result;
     	result = edao.update(tptId, new TrainingPlanTemplate(tptItemJsonObject.get("tptId").toString(),
@@ -103,10 +99,9 @@ public class TrainingPlanTemplateController {
         }
     }
     
-    @RequestMapping(value="/tptemplates/{tptId}", method=RequestMethod.DELETE)
+    @RequestMapping(value="/tptemplates/{tptId}", method=RequestMethod.DELETE, produces="application/json;charset=UTF-8")
     public String deletePlanTemplate(@PathVariable String tptId) {
     	JsonObject returnJsonObject = new JsonObject();
-    	checkConnection(edao);
     	boolean result;
         result = edao.deletePlanTemplate(tptId);
         if (result) {
@@ -115,14 +110,4 @@ public class TrainingPlanTemplateController {
         	return Results.failReturnJsonObject(returnJsonObject, "fail: delete tpt").toString();
         }
     }
-    
-	public static void checkConnection(TrainingPlanTemplateDbDeclaration tpt) {
-    	try {
-			if(tpt.conn.isClosed()) {
-				tpt.conn = DBConnectionMysql.getInstance().getConnection();
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
 }
