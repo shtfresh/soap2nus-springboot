@@ -83,7 +83,7 @@ public class TrainingPlanController {
     	JsonObject tptEnumJsonObject = edaoTpEnum.getPlanTemplateEnum();
     	
     	JsonObject tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
-    	tpItemJsonObject.addProperty("tpId", "tpXXX"+counter.incrementAndGet());
+    	tpItemJsonObject.addProperty("tpId", "tpXXXX"+counter.incrementAndGet());
     	tpItemJsonObject.addProperty("tpPublishedAt", df.format(new Date()));
     	tpItemJsonObject.addProperty("tpUpdateAt", "");
     	tpItemJsonObject.addProperty("tpVersionNo", 1);
@@ -205,7 +205,7 @@ public class TrainingPlanController {
     	if (result) {
     		return new TrainingPlanResponse("00", "success", tpNew);
     	} else {
-    		return new TrainingPlanResponse("01", "fail: add tp", tpNew);
+    		return new TrainingPlanResponse("01", "fail: add tp", null);
     	}
     }
     

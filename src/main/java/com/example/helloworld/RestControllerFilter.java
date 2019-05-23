@@ -33,17 +33,12 @@ public class RestControllerFilter implements Filter {
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
-        /*
-        String tptemplates = request.getRequestURI().split("\\/")[1];
-        System.out.println("tptemplates="+request.getRequestURI());
-        System.out.println("tptemplates="+tptemplates);
-        if (tptemplates.matches("(.*)tptemplates(.*)")) {
+        
+        if (request.getRequestURI().contains("tptemplates")) {
         	checkTPTConnection(TrainingPlanTemplateController.edao);
-        } else {
+        } else if (request.getRequestURI().contains("tp")){
         	checkTPConnection(TrainingPlanController.edaoTp);
-        }*/
-        checkTPTConnection(TrainingPlanTemplateController.edao);
-        checkTPConnection(TrainingPlanController.edaoTp);
+        }
         filterChain.doFilter(request, response);
     }
 

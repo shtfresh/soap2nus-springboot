@@ -14,13 +14,13 @@ import com.google.common.collect.Lists;
 @Component
 public class RestURLFilterConfig {
 	
-    //@Autowired
-    //private AuthenticationFilter filter;
+    @Autowired
+    private AuthenticationFilter filter;
     
     @Autowired
     private RestControllerFilter filter1;
 
-    /*@Bean
+    @Bean
     public FilterRegistrationBean filterRegistrationBean() {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
         registrationBean.setFilter(filter);
@@ -30,11 +30,11 @@ public class RestURLFilterConfig {
         urlPatterns.add("/*");
         registrationBean.setUrlPatterns(urlPatterns);
 
-        registrationBean.setOrder(2);
+        registrationBean.setOrder(1);
         registrationBean.setEnabled(true);
 
         return registrationBean;
-    }*/
+    }
     
     @Bean
     public FilterRegistrationBean filterRegistrationBean1() {
@@ -46,7 +46,7 @@ public class RestURLFilterConfig {
         urlPatterns.add("/*");
         registrationBean.setUrlPatterns(urlPatterns);
 
-        registrationBean.setOrder(1);
+        registrationBean.setOrder(2);
         registrationBean.setEnabled(true);
 
         return registrationBean;
