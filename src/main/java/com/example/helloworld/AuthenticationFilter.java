@@ -51,13 +51,13 @@ public class AuthenticationFilter implements Filter {
         /*request.getParameterMap().forEach((key, value) -> {
         	System.out.println(String.format("Header %s = %s", key, value.toString()));
 		});*/
-        /*
+
         if (currentTimeStamp - requestTimeStamp > 30000) {
         	//System.out.println(String.format("delta: %d", currentTimeStamp - requestTimeStamp));
         	response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized Request - TimeStamp");
         	return;
-        }*/
-        
+        }
+
         String queryParameter = null;
         String key = "3f67e6821de6893e8cb3135d946aaa5f57d4f0f57ba2c6306048208a360628f3";
         
@@ -67,6 +67,7 @@ public class AuthenticationFilter implements Filter {
         if (method.equals(new String("GET"))) {
         	if (request.getQueryString() != null) {
         		queryParameter = request.getRequestURI()+"?"+ request.getQueryString();
+        		queryParameter = queryParameter.replace("+", "%20");
         	} else {
         		queryParameter = request.getRequestURI();
         	}
