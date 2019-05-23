@@ -24,6 +24,8 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.hash.Hashing;
 import com.google.common.io.CharStreams;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 @Component
 public class AuthenticationFilter implements Filter {
@@ -49,12 +51,12 @@ public class AuthenticationFilter implements Filter {
         /*request.getParameterMap().forEach((key, value) -> {
         	System.out.println(String.format("Header %s = %s", key, value.toString()));
 		});*/
-        
+        /*
         if (currentTimeStamp - requestTimeStamp > 30000) {
         	//System.out.println(String.format("delta: %d", currentTimeStamp - requestTimeStamp));
         	response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized Request - TimeStamp");
         	return;
-        }
+        }*/
         
         String queryParameter = null;
         String key = "3f67e6821de6893e8cb3135d946aaa5f57d4f0f57ba2c6306048208a360628f3";
@@ -72,9 +74,11 @@ public class AuthenticationFilter implements Filter {
         } else if (method.equals(new String("PUT")) || method.equals(new String("POST"))) {
         	myRequestWrapper = new BodyReaderHttpServletRequestWrapper(request);
         	String payload = CharStreams.toString(myRequestWrapper.getReader());
-        	payload = payload.replaceAll("\r|\n|\t|\\s*", "");
+        	payload = payload.replaceAll("\r|\n", "");
+        	JsonObject userInfoJsonObject = new JsonParser().parse(payload).getAsJsonObject();
+        	payload = userInfoJsonObject.toString();
+
         	verifyString = String.format("<%s>-<%s>-<%s>", payload, String.valueOf(requestTimeStamp), key);
-        	
         } else {
         	response.sendError(HttpServletResponse.SC_FORBIDDEN, method+" FORBIDDEN");
         	return;
