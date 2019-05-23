@@ -83,7 +83,7 @@ public class TrainingPlanController {
     	JsonObject tptEnumJsonObject = edaoTpEnum.getPlanTemplateEnum();
     	
     	JsonObject tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
-    	tpItemJsonObject.addProperty("tpId", "tpXXXX"+counter.incrementAndGet());
+    	tpItemJsonObject.addProperty("tpId", "tpXXXXX"+counter.incrementAndGet());
     	tpItemJsonObject.addProperty("tpPublishedAt", df.format(new Date()));
     	tpItemJsonObject.addProperty("tpUpdateAt", "");
     	tpItemJsonObject.addProperty("tpVersionNo", 1);
