@@ -64,7 +64,6 @@ public class TrainingPlanTemplateEnumDbDeclaration {
             System.out.println("Update Error: "	+ e.getMessage());
             return false;            
 		}
-    
     }
     
     public boolean updateNew(String updateTableSQL){
@@ -81,12 +80,10 @@ public class TrainingPlanTemplateEnumDbDeclaration {
             System.out.println("Update Error: "	+ e.getMessage());
             return false;            
 		}
-    
     }
     
     public JsonObject getPlanTemplateEnum(){
 		String queryStr = "SELECT * FROM t_oracle_tptenum";
 		return this.query(queryStr);
-                   
     }
 }

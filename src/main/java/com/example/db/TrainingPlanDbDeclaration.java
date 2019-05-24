@@ -24,13 +24,11 @@ public class TrainingPlanDbDeclaration {
 		try (PreparedStatement stmt = conn.prepareStatement(sqlQueryStr)) {
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
-				//JSONArray weeks = new JSONArray(rs.getString("weeks"));
-				//System.out.print(weeks);
 				resultList.add(
 	                    new TrainingPlan(
 	                    		rs.getString("tpId"), rs.getString("tpOwnerId"), rs.getString("tpPublishedAt"), rs.getString("tpUpdateAt"),
-	                    		rs.getString("tpOwner"), rs.getString("tpStatus"), rs.getString("tpStart"), rs.getString("tpEnd"),
-	                    		rs.getString("tpTargetType"), rs.getString("tpTargetMatchid"), rs.getInt("tpVersionNo"),
+	                    		rs.getString("tpOwner"), rs.getString("tpStatus"), rs.getString("tpStart"), rs.getString("tpEnd"), rs.getString("tpTargetType"),
+	                    		rs.getString("tpTargetMatchid"), rs.getInt("tpVersionNo"), rs.getString("minKilometre"), rs.getString("maxKilometre"),
 	                    		rs.getString("tptId"), rs.getString("tptTile"), rs.getString("tptType"), rs.getString("tptDescrition"), rs.getString("weeks"))
 	            );
 			}
@@ -41,13 +39,13 @@ public class TrainingPlanDbDeclaration {
 		}
 		return resultList;
 	}
-
+	
     public boolean add(TrainingPlan tpItem){
 		String insertTableSQL = "INSERT INTO t_oracle_tp "
 				+ "(tpId, tpOwnerId, tpPublishedAt, tpUpdateAt, tpOwner, "
-				+ "tpStatus, tpStart, tpEnd, tpTargetType, tpTargetMatchid, tpVersionNo,"
+				+ "tpStatus, tpStart, tpEnd, tpTargetType, tpTargetMatchid, tpVersionNo, minKilometre, maxKilometre,"
 				+ "tptId, tptTile, tptType, tptDescrition, weeks) "
-				+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
 		try (PreparedStatement preparedStatement = this.conn
 				.prepareStatement(insertTableSQL)) {
@@ -63,11 +61,13 @@ public class TrainingPlanDbDeclaration {
 			preparedStatement.setString(9, tpItem.gettpTargetType().replace("\"", ""));
 			preparedStatement.setString(10, tpItem.gettpTargetMatchid().replace("\"", ""));
 			preparedStatement.setLong(11, tpItem.gettpVersionNo());
-			preparedStatement.setString(12, tpItem.gettptId().replace("\"", ""));
-			preparedStatement.setString(13, tpItem.gettptTile().replace("\"", ""));
-			preparedStatement.setString(14, tpItem.gettptType().replace("\"", ""));
-			preparedStatement.setString(15, tpItem.gettptDescrition().replace("\"", ""));
-			preparedStatement.setString(16, tpItem.getWeeks());
+			preparedStatement.setString(12, tpItem.getminKilometre().replace("\"", ""));
+			preparedStatement.setString(13, tpItem.getmaxKilometre().replace("\"", ""));
+			preparedStatement.setString(14, tpItem.gettptId().replace("\"", ""));
+			preparedStatement.setString(15, tpItem.gettptTile().replace("\"", ""));
+			preparedStatement.setString(16, tpItem.gettptType().replace("\"", ""));
+			preparedStatement.setString(17, tpItem.gettptDescrition().replace("\"", ""));
+			preparedStatement.setString(18, tpItem.getWeeks());
 
 			preparedStatement.executeUpdate();
             return true;
@@ -82,7 +82,6 @@ public class TrainingPlanDbDeclaration {
     }
     
     public boolean update(String updateTableSQL){
-
 		try (PreparedStatement preparedStatement = this.conn
 				.prepareStatement(updateTableSQL);) {
 

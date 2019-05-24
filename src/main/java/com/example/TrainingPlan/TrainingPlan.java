@@ -17,6 +17,8 @@ public class TrainingPlan {
     private final String tpTargetType;
     private final String tpTargetMatchid;
     private final int tpVersionNo ;
+    private final String minKilometre;
+    private final String maxKilometre;
     
     private final String tptId;
     private final String tptTile;
@@ -25,31 +27,8 @@ public class TrainingPlan {
     @JsonRawValue
     private String weeks;
     
-    public TrainingPlan() {
-    	
-    	this.tpId = "\"\"";
-    	this.tpOwnerId = "";
-    	this.tpPublishedAt = "";
-    	this.tpUpdateAt = "";
-    	this.tpOwner = "";
-    	this.tpStatus = "";
-    	this.tpStart = "";
-    	this.tpEnd = "";
-    	this.tpTargetType = "";
-    	this.tpTargetMatchid = "";
-    	this.tpVersionNo = 0;
-    	
-   
-        this.tptId = "";
-        this.tptTile = "";
-        this.tptType = "";
-        this.tptDescrition = "";
-        this.weeks = "";
-    }
-    
-    
     public TrainingPlan(String tpId, String tpOwnerId, String tpPublishedAt, String tpUpdateAt, String tpOwner, 
-    		String tpStatus, String tpStart, String tpEnd, String tpTargetType, String tpTargetMatchid, int tpVersionNo,
+    		String tpStatus, String tpStart, String tpEnd, String tpTargetType, String tpTargetMatchid, int tpVersionNo, String minKilometre, String maxKilometre,
     		String tptId, String tptTile, String tptType, String tptDescrition, String weeks) {
     	
     	this.tpId = tpId;
@@ -63,8 +42,9 @@ public class TrainingPlan {
     	this.tpTargetType = tpTargetType;
     	this.tpTargetMatchid = tpTargetMatchid;
     	this.tpVersionNo = tpVersionNo;
+    	this.minKilometre = minKilometre;
+    	this.maxKilometre = maxKilometre;
     	
-   
         this.tptId = tptId;
         this.tptTile = tptTile;
         this.tptType = tptType;
@@ -120,11 +100,17 @@ public class TrainingPlan {
         return this.tptId;
     }
     
+    public String getminKilometre() {
+    	return this.minKilometre;
+    }
+    
+    public String getmaxKilometre() {
+    	return this.maxKilometre;
+    }
     
     public String gettptTile() {
         return this.tptTile;
     }
-    
     
     public String gettptType() {
         return this.tptType;

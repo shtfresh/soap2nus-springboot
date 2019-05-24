@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -24,7 +23,6 @@ import com.example.TrainingPlan.TrainingPlan;
 import com.example.TrainingPlan.TrainingPlanResponse;
 import com.example.TrainingPlan.TrainingPlanResponseArray;
 import com.example.TrainingPlanTemplate.TrainingPlanTemplate;
-import com.example.db.DBConnectionMysql;
 import com.example.db.TrainingPlanDbDeclaration;
 import com.example.db.TrainingPlanTemplateEnumDbDeclaration;
 
@@ -83,11 +81,6 @@ public class TrainingPlanController {
     	JsonObject tptEnumJsonObject = edaoTpEnum.getPlanTemplateEnum();
     	
     	JsonObject tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
-    	tpItemJsonObject.addProperty("tpId", "tpXXXXX"+counter.incrementAndGet());
-    	tpItemJsonObject.addProperty("tpPublishedAt", df.format(new Date()));
-    	tpItemJsonObject.addProperty("tpUpdateAt", "");
-    	tpItemJsonObject.addProperty("tpVersionNo", 1);
-    	tpItemJsonObject.addProperty("tpStatus", "active");
     	
     	// get tpt
     	TrainingPlanTemplate tpt;
@@ -108,6 +101,8 @@ public class TrainingPlanController {
     		edaoTp.update(sqlString);
     	}
 
+    	int totalminKilometre = 0;
+    	int totalmaxKilometre = 0;
     	LocalDate startTime = LocalDate.parse(tpItemJsonObject.get("tpStart").toString().replace("\"", ""));
     	JsonArray weeksjsonArray = new JsonParser().parse(tpt.getWeeks()).getAsJsonArray();
     	for (JsonElement pa : weeksjsonArray) {
@@ -163,14 +158,17 @@ public class TrainingPlanController {
 
         				//System.out.println("minKilometre = "+division(minKilometre, 1000));
             			//System.out.println("maxKilometre = "+division(maxKilometre, 1000));
-            			entry.getValue().getAsJsonObject().addProperty("minKilometre", division(minKilometre, 1000));
-            			entry.getValue().getAsJsonObject().addProperty("maxKilometre", division(maxKilometre, 1000));
+            			entry.getValue().getAsJsonObject().addProperty("minKilometre", String.valueOf(minKilometre));
+            			entry.getValue().getAsJsonObject().addProperty("maxKilometre", String.valueOf(maxKilometre));
         				entry.getValue().getAsJsonObject().addProperty("finished", "0");
         					
         				entry.getValue().getAsJsonObject().addProperty("status", "planned");
         				//System.out.println(startTime.plusDays(1).toString());
         				//tpItemJsonObject.get("tpStart").toString()
         				//System.out.println(entry.getValue().getAsJsonObject().toString());
+        				
+        				totalminKilometre += minKilometre;
+        		    	totalmaxKilometre += maxKilometre;
         			}
         		
         		}
@@ -182,19 +180,21 @@ public class TrainingPlanController {
     	//System.out.println("******************");
     	System.out.println(weeksjsonArray.toString());
     	boolean result;
-        
+
     	TrainingPlan tpNew = new TrainingPlan(
-    			tpItemJsonObject.get("tpId").toString().replace("\"", ""),
+    			"tpXXXXX"+counter.incrementAndGet(),
     			tpItemJsonObject.get("tpOwnerId").toString().replace("\"", ""),
-    			tpItemJsonObject.get("tpPublishedAt").toString().replace("\"", ""),
-    			tpItemJsonObject.get("tpUpdateAt").toString().replace("\"", ""),
+    			df.format(new Date()),
+    			"",
     			tpItemJsonObject.get("tpOwner").toString().replace("\"", ""),
-    			tpItemJsonObject.get("tpStatus").toString().replace("\"", ""),
+    			"active",
     			tpItemJsonObject.get("tpStart").toString().replace("\"", ""),
     			tpItemJsonObject.get("tpEnd").toString().replace("\"", ""),
     			tpItemJsonObject.get("tpTargetType").toString().replace("\"", ""),
     			tpItemJsonObject.get("tpTargetMatchid").toString().replace("\"", ""),
-    			tpItemJsonObject.get("tpVersionNo").getAsInt(),
+    			1,
+    			String.valueOf(totalminKilometre),
+    			String.valueOf(totalmaxKilometre),
     			tpt.gettptId(),
     			tpt.gettptTile(),
     			tpt.gettptType(),
@@ -249,13 +249,14 @@ public class TrainingPlanController {
         				resultJsonObject.addProperty("date", requestDate);
         				mapNeedModify.put("day", entry.getKey());
         				mapNeedModify.put("index", Integer.toString(count));
-        				float kilometers = Float.parseFloat((tpItemJsonObject.get("kilometers").toString().replace("\"", "")));
-	    				float minKilometre = Float.parseFloat(entry.getValue().getAsJsonObject().get("minKilometre").toString().replace("\"", ""));
+        				int kilometers = Double.valueOf(tpItemJsonObject.get("kilometers").toString().replace("\"", "")).intValue() * 1000;
+	    				int minKilometre = Integer.parseInt(entry.getValue().getAsJsonObject().get("minKilometre").toString().replace("\"", ""));
 	    				//float maxKilometre = Float.parseFloat(entry.getValue().getAsJsonObject().get("maxKilometre").toString().replace("\"", ""));
 	    				//System.out.println("kilometers = "+kilometers+" minKilometre = "+minKilometre);
-	    				if (kilometers > Float.parseFloat(entry.getValue().getAsJsonObject().get("finished").toString().replace("\"", ""))) {
-	    					entry.getValue().getAsJsonObject().addProperty("finished", Float.toString(kilometers));
-	    					mapNeedModify.put("finished", Float.toString(kilometers));
+	    				if (kilometers > Double.valueOf(entry.getValue().getAsJsonObject().get("finished").toString().replace("\"", "")).intValue()) {
+	    					entry.getValue().getAsJsonObject().addProperty("finished", String.valueOf(kilometers));
+	    					mapNeedModify.put("finished", String.valueOf(kilometers));
+	    					//mapNeedModify.put("finished", Float.toString(kilometers));
 	    				}
 		        		if (kilometers > minKilometre) {
 		        			//System.out.println("change status");
@@ -294,9 +295,7 @@ public class TrainingPlanController {
     	
     	//System.out.println(weeksjsonArray.toString());
     	System.out.println(mapNeedModify.toString());
-    	//result = edaoTpEnum.update(tpOwnerId, weeksjsonArray.toString());
-    	TrainingPlanTemplateEnumDbDeclaration edaoTpEnum = new TrainingPlanTemplateEnumDbDeclaration();
-    	result = edaoTpEnum.updateNew(sqlString);
+    	result = edaoTp.update(sqlString);
         if (result && resultJsonObject.entrySet().size() != 0) {
         	return Results.successReturnJsonObject(returnJsonObject, resultJsonObject).toString();
         } else {
@@ -315,6 +314,17 @@ public class TrainingPlanController {
         	return Results.failReturnJsonObject(returnJsonObject, "fail: delete tp").toString();
         }
     }
+    /*
+    public String flushPlanStatusToIncomplete() {
+    	JsonObject returnJsonObject = new JsonObject();
+    	boolean result;
+        
+        if (result) {
+        	return Results.successReturnJsonObject(returnJsonObject, null).toString();
+        } else {
+        	return Results.failReturnJsonObject(returnJsonObject, "fail: flushPlanStatusToIncomplete").toString();
+        }
+    }*/
     
 	public static String division(int a ,int b){
         String result = "";
@@ -324,6 +334,5 @@ public class TrainingPlanController {
         result = df.format(num);
 
         return result;
-
     }
 }
