@@ -33,10 +33,18 @@ public class RestControllerFilter implements Filter {
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
-        
-        if (request.getRequestURI().contains("tptemplates")) {
+        String requestURI = request.getRequestURI();
+        if (requestURI.contains("tptemplates")) {
+        	if (request.getMethod().equals(new String("GET")) &&
+        			requestURI.startsWith("/tptemplates/")) {
+        		response.setHeader("Access-Control-Allow-Origin", "*");
+        	}
         	checkTPTConnection(TrainingPlanTemplateController.edao);
-        } else if (request.getRequestURI().contains("tp")){
+        } else if (requestURI.contains("tp")) {
+        	if (request.getMethod().equals(new String("GET")) &&
+        			requestURI.contains("activetp")) {
+        		response.setHeader("Access-Control-Allow-Origin", "*");
+        	}
         	checkTPConnection(TrainingPlanController.edaoTp);
         }
         filterChain.doFilter(request, response);

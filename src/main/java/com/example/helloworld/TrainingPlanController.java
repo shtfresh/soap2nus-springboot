@@ -10,6 +10,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +36,7 @@ import com.google.gson.JsonParser;
 public class TrainingPlanController {
 
     private final AtomicLong counter = new AtomicLong();
+    private final String randomTPID = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
     
     //TrainingPlanDbDeclaration edaoTp = new TrainingPlanDbDeclaration();
     static TrainingPlanDbDeclaration edaoTp = new TrainingPlanDbDeclaration();
@@ -182,7 +184,7 @@ public class TrainingPlanController {
     	boolean result;
 
     	TrainingPlan tpNew = new TrainingPlan(
-    			"tpXXXXX"+counter.incrementAndGet(),
+    			"tp"+randomTPID+counter.incrementAndGet(),
     			tpItemJsonObject.get("tpOwnerId").toString().replace("\"", ""),
     			df.format(new Date()),
     			"",
