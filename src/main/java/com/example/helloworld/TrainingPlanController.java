@@ -38,7 +38,6 @@ public class TrainingPlanController {
     private final AtomicLong counter = new AtomicLong();
     private final String randomTPID = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
     
-    //TrainingPlanDbDeclaration edaoTp = new TrainingPlanDbDeclaration();
     static TrainingPlanDbDeclaration edaoTp = new TrainingPlanDbDeclaration();
 
     @ResponseBody
@@ -216,14 +215,13 @@ public class TrainingPlanController {
     public String updatePlanStatus(@RequestBody String tpItem) {
     	
     	Map<String, String> mapNeedModify = new HashMap<String, String>();
-    	JsonObject returnJsonObject = new JsonObject();
     	JsonObject tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
     	JsonObject resultJsonObject = new JsonObject();
     	boolean result;
     	String tpOwnerId = tpItemJsonObject.get("tpOwnerId").toString().replace("\"", "");
     	TrainingPlan tp = edaoTp.getActivePlan(tpOwnerId);
     	if (tp == null) {
-    		return Results.failReturnJsonObject(returnJsonObject, String.format("fail: %s no active tp", tpOwnerId)).toString();
+    		return Results.failReturnJsonObject(String.format("fail: %s no active tp", tpOwnerId)).toString();
     	}
     	String requestDate = tpItemJsonObject.get("tpDate").toString().replace("\"", "");
     	/*
@@ -292,41 +290,81 @@ public class TrainingPlanController {
          				Integer.parseInt(mapNeedModify.get("index")), mapNeedModify.get("day"), mapNeedModify.get("status"), tpOwnerId);
         	}
     	} else {
-    		return Results.failReturnJsonObject(returnJsonObject, String.format("fail: request date %s not found or with no task", requestDate)).toString();
+    		return Results.failReturnJsonObject(String.format("fail: request date %s not found or with no task", requestDate)).toString();
     	}
     	
     	//System.out.println(weeksjsonArray.toString());
     	System.out.println(mapNeedModify.toString());
     	result = edaoTp.update(sqlString);
         if (result && resultJsonObject.entrySet().size() != 0) {
-        	return Results.successReturnJsonObject(returnJsonObject, resultJsonObject).toString();
+        	return Results.successReturnJsonObject(resultJsonObject).toString();
         } else {
-    		return Results.failReturnJsonObject(returnJsonObject, "fail: update status").toString();
+    		return Results.failReturnJsonObject("fail: update status").toString();
         }
     }
     
     @RequestMapping(value="/tp/{tpId}", method=RequestMethod.DELETE, produces="application/json;charset=UTF-8")
     public String deletePlanTemplate(@PathVariable String tpId) {
-    	JsonObject returnJsonObject = new JsonObject();
     	boolean result;
         result = edaoTp.deletePlan(tpId);
         if (result) {
-        	return Results.successReturnJsonObject(returnJsonObject, null).toString();
+        	return Results.successReturnJsonObject(null).toString();
         } else {
-        	return Results.failReturnJsonObject(returnJsonObject, "fail: delete tp").toString();
+        	return Results.failReturnJsonObject("fail: delete tp").toString();
         }
     }
-    /*
+    
+    @RequestMapping(value="/tp/flushPlanStatus", method=RequestMethod.PUT, produces="application/json;charset=UTF-8")
     public String flushPlanStatusToIncomplete() {
-    	JsonObject returnJsonObject = new JsonObject();
     	boolean result;
-        
-        if (result) {
-        	return Results.successReturnJsonObject(returnJsonObject, null).toString();
-        } else {
-        	return Results.failReturnJsonObject(returnJsonObject, "fail: flushPlanStatusToIncomplete").toString();
-        }
-    }*/
+    	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+    	LocalDate cTime = LocalDate.parse(df.format(new Date()));
+    	cTime = cTime.minusDays(1);
+    	String querySql = String.format("select * from t_oracle_tp where tpStatus = \"active\" and JSON_CONTAINS(weeks->'$[*].*',JSON_OBJECT(\"date\", \"%s\"));", 
+    			cTime.minusDays(1).toString());
+    	List<TrainingPlan> resultTPList =  edaoTp.getAllActivePlan(querySql);
+    	if (resultTPList == null) {
+    		return Results.failReturnJsonObject("fail: flushPlanStatusToIncomplete, no such tp").toString();
+    	}
+    	
+    	for (TrainingPlan tp : resultTPList) {
+    		int count = 0;
+    		boolean found = false;
+    	   	JsonArray weeksjsonArray = new JsonParser().parse(tp.getWeeks()).getAsJsonArray();
+        	for (JsonElement pa : weeksjsonArray) {
+        		JsonObject temp = pa.getAsJsonObject();
+        		
+            	Set<Map.Entry<String, JsonElement>> entries = temp.entrySet();
+            	for (Map.Entry<String, JsonElement> entry: entries) {
+            		JsonElement taskItem = entry.getValue().getAsJsonObject().get("tasks");
+            		if (taskItem != null &&
+            				entry.getValue().getAsJsonObject().get("date").toString().replace("\"", "").equals(new String(cTime.toString()))) {
+            			if (entry.getValue().getAsJsonObject().get("status").toString().replace("\"", "").equals(new String("planned"))) {
+                     		String updateSql = String.format("UPDATE t_oracle_tp SET weeks = JSON_REPLACE(weeks,'$[%d].%s.status', \"%s\")"
+                     				+ " where tpOwnerId = \"%s\"", 
+                     				count, entry.getKey(), "incomplete", tp.gettpOwnerId());
+                     		result = edaoTp.update(updateSql);
+                     		if (!result) {
+                     			Results.failReturnJsonObject("fail: flushPlanStatusToIncomplete, fail update").toString();
+                     		} else {
+                     			found = true;
+                     			break;
+                     		}
+            			} else {
+            				// ignore
+            				found = true;
+            				break;
+            			}
+            		}
+            	}
+            	if (found) {
+            		break;
+            	}
+            	count = count +1;
+            }
+    	}
+        return Results.successReturnJsonObject(null).toString();
+    }
     
 	public static String division(int a ,int b){
         String result = "";

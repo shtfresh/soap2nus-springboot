@@ -31,7 +31,6 @@ public class UserProfileMatchController {
 
     @RequestMapping(value="/loadUserContext/{userId}",method=RequestMethod.GET,produces="application/json;charset=UTF-8")
     public String loadUserContext(@PathVariable String userId) {
-    	JsonObject returnJsonObject = new JsonObject();
     	JsonObject resultJsonObject = new JsonObject();
     	Gson gson = new Gson();
     	Map<String , Object> map = null;
@@ -40,11 +39,11 @@ public class UserProfileMatchController {
     	try {
     		map = readygoClient.getUserInfoByUserId(userId);
     	} catch (Exception e) {
-    		return Results.failReturnJsonObject(returnJsonObject, String.format("fail: getUserInfoByUserId inaccessible", userId)).toString();
+    		return Results.failReturnJsonObject(String.format("fail: getUserInfoByUserId inaccessible", userId)).toString();
     	}
     	
     	if (!map.get("code").equals(new String("00")) || map.get("results") == null) {
-    		return Results.failReturnJsonObject(returnJsonObject, String.format("fail: userID %s does not exist", userId)).toString();
+    		return Results.failReturnJsonObject(String.format("fail: userID %s does not exist", userId)).toString();
     	}
     	JsonObject userInfoJsonObject = new JsonParser().parse(gson.toJson(map.get("results"))).getAsJsonObject();
     	resultJsonObject.add("userProfile", userInfoJsonObject);
@@ -110,7 +109,7 @@ public class UserProfileMatchController {
     	}
 
     	resultJsonObject.add("activeTrainingPlan", trainingPlanJsonObject);
-    	return Results.successReturnJsonObject(returnJsonObject, resultJsonObject).toString();
+    	return Results.successReturnJsonObject(resultJsonObject).toString();
     }
     
     /*
@@ -126,7 +125,6 @@ public class UserProfileMatchController {
     
     @RequestMapping(value="/userProfile/{userId}",method=RequestMethod.PUT,produces="application/json;charset=UTF-8" )
     public String updateUserInfo(@PathVariable String userId, @RequestBody String userInfo) {
-    	JsonObject returnJsonObject = new JsonObject();
     	JsonObject upUserInfoJsonObject = new JsonParser().parse(userInfo).getAsJsonObject();
     	Map<String , Object> map = null;
     
@@ -137,12 +135,12 @@ public class UserProfileMatchController {
         			upUserInfoJsonObject.get("height").toString().replace("\"", ""),
         			upUserInfoJsonObject.get("weight").toString().replace("\"", ""));
     	} catch (Exception e) {
-    		return Results.failReturnJsonObject(returnJsonObject, "fail: update user profile").toString();
+    		return Results.failReturnJsonObject("fail: update user profile").toString();
     	}
     	if (map.get("code").equals(new String("00"))) {
-    		return Results.successReturnJsonObject(returnJsonObject, null).toString();
+    		return Results.successReturnJsonObject(null).toString();
     	} else {
-    		return Results.failReturnJsonObject(returnJsonObject, "fail: update user profile").toString();
+    		return Results.failReturnJsonObject("fail: update user profile").toString();
     	}
     }
 }

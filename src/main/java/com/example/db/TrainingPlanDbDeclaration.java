@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.example.TrainingPlan.TrainingPlan;
+import com.example.TrainingPlanTemplate.TrainingPlanTemplate;
 
 
 public class TrainingPlanDbDeclaration {
@@ -129,6 +130,16 @@ public class TrainingPlanDbDeclaration {
         }  
     }
     
+    public List<TrainingPlan> getAllActivePlan(String queryStr){
+		List<TrainingPlan> resultList = this.query(queryStr);
+
+		if (resultList.size() > 0) {
+			return resultList;
+		} else {
+            return null;
+        }
+    }
+
     public boolean deletePlan(String tpId){
 		String deleteRowSQL = "DELETE FROM t_oracle_tp WHERE tpId=?";
 		try (PreparedStatement preparedStatement = this.conn

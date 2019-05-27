@@ -4,9 +4,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import java.util.Date;
 import java.util.List;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +18,6 @@ import com.example.Results.Results;
 import com.example.TrainingPlanTemplate.TrainingPlanTemplate;
 import com.example.TrainingPlanTemplate.TrainingPlanTemplateResponse;
 import com.example.TrainingPlanTemplate.TrainingPlanTemplateResponseArray;
-import com.example.db.DBConnectionMysql;
 import com.example.db.TrainingPlanTemplateDbDeclaration;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -27,6 +26,7 @@ import com.google.gson.JsonParser;
 public class TrainingPlanTemplateController {
 
     private final AtomicLong counter = new AtomicLong();
+    private final String randomTPTID = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
     
     static TrainingPlanTemplateDbDeclaration edao = new TrainingPlanTemplateDbDeclaration();
 
@@ -54,11 +54,10 @@ public class TrainingPlanTemplateController {
     
     @RequestMapping(value="/tptemplates",method=RequestMethod.POST, produces="application/json;charset=UTF-8")
     public String createPlanTemplate(@RequestBody String tptItem) {
-    	JsonObject returnJsonObject = new JsonObject();
     	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     	
     	JsonObject tptItemJsonObject = new JsonParser().parse(tptItem).getAsJsonObject();
-    	tptItemJsonObject.addProperty("tptId", "tpidXXX"+counter.incrementAndGet());
+    	tptItemJsonObject.addProperty("tptId", "tpid"+randomTPTID+counter.incrementAndGet());
     	tptItemJsonObject.addProperty("publishedAt", df.format(new Date()));
     	
     	/*ObjectMapper mapper = new ObjectMapper();
@@ -73,15 +72,14 @@ public class TrainingPlanTemplateController {
     			tptItemJsonObject.get("publishedAt").toString(),
     			tptItemJsonObject.get("weeks").toString()));
         if (result) {
-        	return Results.successReturnJsonObject(returnJsonObject, null).toString();
+        	return Results.successReturnJsonObject(null).toString();
         } else {
-        	return Results.failReturnJsonObject(returnJsonObject, "fail: create tpt").toString();
+        	return Results.failReturnJsonObject("fail: create tpt").toString();
         }
     }
     
     @RequestMapping(value="/tptemplates/{tptId}",method=RequestMethod.PUT, produces="application/json;charset=UTF-8")
     public String updatePlanTemplate(@PathVariable String tptId, @RequestBody String tptItem) {
-    	JsonObject returnJsonObject = new JsonObject();
     	JsonObject tptItemJsonObject = new JsonParser().parse(tptItem).getAsJsonObject();
     	boolean result;
     	result = edao.update(tptId, new TrainingPlanTemplate(tptItemJsonObject.get("tptId").toString(),
@@ -93,21 +91,20 @@ public class TrainingPlanTemplateController {
     			tptItemJsonObject.get("weeks").toString()));
     	
         if (result) {
-        	return Results.successReturnJsonObject(returnJsonObject, null).toString();
+        	return Results.successReturnJsonObject(null).toString();
         } else {
-        	return Results.failReturnJsonObject(returnJsonObject, "fail: update tpt").toString();
+        	return Results.failReturnJsonObject("fail: update tpt").toString();
         }
     }
     
     @RequestMapping(value="/tptemplates/{tptId}", method=RequestMethod.DELETE, produces="application/json;charset=UTF-8")
     public String deletePlanTemplate(@PathVariable String tptId) {
-    	JsonObject returnJsonObject = new JsonObject();
     	boolean result;
         result = edao.deletePlanTemplate(tptId);
         if (result) {
-        	return Results.successReturnJsonObject(returnJsonObject, null).toString();
+        	return Results.successReturnJsonObject(null).toString();
         } else {
-        	return Results.failReturnJsonObject(returnJsonObject, "fail: delete tpt").toString();
+        	return Results.failReturnJsonObject("fail: delete tpt").toString();
         }
     }
 }
