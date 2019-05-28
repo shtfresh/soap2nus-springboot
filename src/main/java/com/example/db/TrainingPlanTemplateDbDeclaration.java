@@ -4,6 +4,8 @@ package com.example.db;
 
 import java.util.List;
 
+import org.apache.commons.dbutils.DbUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,11 +22,12 @@ public class TrainingPlanTemplateDbDeclaration {
 	    
 	public List<TrainingPlanTemplate> query(String sqlQueryStr) {
 		List<TrainingPlanTemplate> resultList = new ArrayList<>();
-		try (PreparedStatement stmt = conn.prepareStatement(sqlQueryStr)) {
-			ResultSet rs = stmt.executeQuery();
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try {
+			stmt = conn.prepareStatement(sqlQueryStr);
+			rs = stmt.executeQuery();
 			while (rs.next()) {
-				//JSONArray weeks = new JSONArray(rs.getString("weeks"));
-				//System.out.print(weeks);
 				resultList.add(
 	                    new TrainingPlanTemplate(rs.getString("tptId"), rs.getString("tptTile"), 
 	                        rs.getString("tptType"), rs.getString("tptCategory"), 
@@ -35,6 +38,10 @@ public class TrainingPlanTemplateDbDeclaration {
             System.out.println("SQL Query Error: " + e.getMessage());
 		} catch (Exception e) {
             System.out.println("Query Error: " + e.getStackTrace());
+		} finally {
+		    DbUtils.closeQuietly(stmt);
+		    DbUtils.closeQuietly(rs);
+		    DbUtils.closeQuietly(conn);
 		}
 		return resultList;
 	}
@@ -43,10 +50,10 @@ public class TrainingPlanTemplateDbDeclaration {
 		String insertTableSQL = "INSERT INTO t_oracle_tpt "
 				+ "(tptId, tptTile, tptType, tptCategory, tptDescrition, publishedAt, weeks) "
 				+ "VALUES(?,?,?,?,?,?)";
+		PreparedStatement preparedStatement = null;
 
-		try (PreparedStatement preparedStatement = this.conn
-				.prepareStatement(insertTableSQL)) {
-
+		try {
+			preparedStatement = this.conn.prepareStatement(insertTableSQL);
 			preparedStatement.setString(1, tptItem.gettptId().replace("\"", ""));
 			preparedStatement.setString(2, tptItem.gettptTile().replace("\"", ""));
 			preparedStatement.setString(3, tptItem.gettptType().replace("\"", ""));
@@ -60,17 +67,20 @@ public class TrainingPlanTemplateDbDeclaration {
 		} catch (SQLException e) {
             System.out.println("SQL Add Error: " + e.getMessage());
             return false;
-            
 		} catch (Exception e) {
             System.out.println("Add Error: " + e.getMessage());
             return false;
+		} finally {
+		    DbUtils.closeQuietly(preparedStatement);
+		    DbUtils.closeQuietly(conn);
 		}
     }
     
     public boolean update(String tptId, TrainingPlanTemplate tptItem){
 		String updateTableSQL = "UPDATE t_oracle_tpt SET tptTile=?, tptType=?, tptCategory=?, tptDescrition=?, publishedAt=?, weeks=? WHERE tptId=?";
-		try (PreparedStatement preparedStatement = this.conn
-				.prepareStatement(updateTableSQL);) {
+		PreparedStatement preparedStatement = null;
+		try {
+			preparedStatement = this.conn.prepareStatement(updateTableSQL);
 			preparedStatement.setString(1, tptItem.gettptTile().replace("\"", ""));
 			preparedStatement.setString(2, tptItem.gettptType().replace("\"", ""));
 			preparedStatement.setString(2, tptItem.gettptCategory().replace("\"", ""));
@@ -87,8 +97,10 @@ public class TrainingPlanTemplateDbDeclaration {
 		} catch (Exception e) {
             System.out.println("Update Error: "	+ e.getMessage());
             return false;            
+		} finally {
+		    DbUtils.closeQuietly(preparedStatement);
+		    DbUtils.closeQuietly(conn);
 		}
-    
     }
     
     public TrainingPlanTemplate getPlanTemplate(String tptId){
@@ -124,18 +136,21 @@ public class TrainingPlanTemplateDbDeclaration {
     
     public boolean deletePlanTemplate(String tptId){
 		String deleteRowSQL = "DELETE FROM t_oracle_tpt WHERE tptId=?";
-		try (PreparedStatement preparedStatement = this.conn
-				.prepareStatement(deleteRowSQL)) {
+		PreparedStatement preparedStatement = null;
+		try {
+			preparedStatement = this.conn.prepareStatement(deleteRowSQL);
 			preparedStatement.setString(1, tptId);
 			preparedStatement.executeUpdate();
             return true;
-
 		} catch (SQLException e) {
 			System.out.println("SQL Delete Error: " + e.getMessage());
             return false;
 		} catch (Exception e) {
 			System.out.println("Delete Error: " + e.getMessage());
             return false;
+		} finally {
+		    DbUtils.closeQuietly(preparedStatement);
+		    DbUtils.closeQuietly(conn);
 		}
 	}
 }

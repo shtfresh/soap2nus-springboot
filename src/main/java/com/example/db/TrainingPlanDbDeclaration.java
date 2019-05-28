@@ -3,16 +3,14 @@
 package com.example.db;
 
 import java.util.List;
-
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.sql.PreparedStatement;
+import org.apache.commons.dbutils.DbUtils;
 
 import com.example.TrainingPlan.TrainingPlan;
-import com.example.TrainingPlanTemplate.TrainingPlanTemplate;
-
 
 public class TrainingPlanDbDeclaration {
     
@@ -22,8 +20,11 @@ public class TrainingPlanDbDeclaration {
 	
 	public List<TrainingPlan> query(String sqlQueryStr) {
 		List<TrainingPlan> resultList = new ArrayList<>();
-		try (PreparedStatement stmt = conn.prepareStatement(sqlQueryStr)) {
-			ResultSet rs = stmt.executeQuery();
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try {
+			stmt = conn.prepareStatement(sqlQueryStr);
+			rs = stmt.executeQuery();
 			while (rs.next()) {
 				resultList.add(
 	                    new TrainingPlan(
@@ -37,19 +38,24 @@ public class TrainingPlanDbDeclaration {
             System.out.println("SQL Query Error: " + e.getMessage());
 		} catch (Exception e) {
             System.out.println("Query Error: " + e.getStackTrace());
+		} finally {
+		    DbUtils.closeQuietly(stmt);
+		    DbUtils.closeQuietly(rs);
+		    DbUtils.closeQuietly(conn);
 		}
 		return resultList;
 	}
 	
-    public boolean add(TrainingPlan tpItem){
+    public boolean add(TrainingPlan tpItem) {
 		String insertTableSQL = "INSERT INTO t_oracle_tp "
 				+ "(tpId, tpOwnerId, tpPublishedAt, tpUpdateAt, tpOwner, "
 				+ "tpStatus, tpStart, tpEnd, tpTargetType, tpTargetMatchid, tpVersionNo, minKilometre, maxKilometre,"
 				+ "tptId, tptTile, tptType, tptDescrition, weeks) "
 				+ "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-		try (PreparedStatement preparedStatement = this.conn
-				.prepareStatement(insertTableSQL)) {
+		PreparedStatement preparedStatement = null;
+		try {
+			preparedStatement = conn.prepareStatement(insertTableSQL);
 
 			preparedStatement.setString(1, tpItem.gettpId().replace("\"", ""));
 			preparedStatement.setString(2, tpItem.gettpOwnerId().replace("\"", ""));
@@ -75,16 +81,19 @@ public class TrainingPlanDbDeclaration {
 		} catch (SQLException e) {
             System.out.println("SQL Add Error: " + e.getMessage());
             return false;
-            
 		} catch (Exception e) {
             System.out.println("Add Error: " + e.getMessage());
             return false;
+		} finally {
+		    DbUtils.closeQuietly(preparedStatement);
+		    DbUtils.closeQuietly(conn);
 		}
     }
     
-    public boolean update(String updateTableSQL){
-		try (PreparedStatement preparedStatement = this.conn
-				.prepareStatement(updateTableSQL);) {
+    public boolean update(String updateTableSQL) {
+    	PreparedStatement preparedStatement = null;
+		try {
+			preparedStatement = conn.prepareStatement(updateTableSQL);
 
 			preparedStatement.executeUpdate();
             return true;
@@ -94,6 +103,9 @@ public class TrainingPlanDbDeclaration {
 		} catch (Exception e) {
             System.out.println("Update Error: "	+ e.getMessage());
             return false;            
+		} finally {
+		    DbUtils.closeQuietly(preparedStatement);
+		    DbUtils.closeQuietly(conn);
 		}
     }
     
@@ -142,8 +154,9 @@ public class TrainingPlanDbDeclaration {
 
     public boolean deletePlan(String tpId){
 		String deleteRowSQL = "DELETE FROM t_oracle_tp WHERE tpId=?";
-		try (PreparedStatement preparedStatement = this.conn
-				.prepareStatement(deleteRowSQL)) {
+		PreparedStatement preparedStatement = null;
+		try {
+			preparedStatement = conn.prepareStatement(deleteRowSQL);
 			preparedStatement.setString(1, tpId);
 			preparedStatement.executeUpdate();
             return true;
@@ -154,6 +167,9 @@ public class TrainingPlanDbDeclaration {
 		} catch (Exception e) {
 			System.out.println("Delete Error: " + e.getMessage());
             return false;
+		} finally {
+		    DbUtils.closeQuietly(preparedStatement);
+		    DbUtils.closeQuietly(conn);
 		}
 	}
 }

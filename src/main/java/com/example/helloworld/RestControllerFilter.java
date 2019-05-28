@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.example.db.DBConnectionMysql;
 import com.example.db.TrainingPlanDbDeclaration;
 import com.example.db.TrainingPlanTemplateDbDeclaration;
+import com.example.db.TrainingPlanTemplateEnumDbDeclaration;
 
 
 @Component
@@ -30,7 +31,6 @@ public class RestControllerFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String requestURI = request.getRequestURI();

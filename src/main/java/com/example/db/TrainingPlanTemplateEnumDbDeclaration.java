@@ -4,6 +4,8 @@ package com.example.db;
 
 import java.util.List;
 
+import org.apache.commons.dbutils.DbUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,12 +19,15 @@ public class TrainingPlanTemplateEnumDbDeclaration {
     
     List<TrainingPlanTemplate> eList = null;
 	
-	private final Connection conn = DBConnectionMysql.getInstance().getConnection();
+	public Connection conn = DBConnectionMysql.getInstance().getConnection();
 	
 	public JsonObject query(String sqlQueryStr) {
 		JsonObject tptEnumJsonObject = new JsonObject();
-		try (PreparedStatement stmt = conn.prepareStatement(sqlQueryStr)) {
-			ResultSet rs = stmt.executeQuery();
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try {
+			stmt = conn.prepareStatement(sqlQueryStr);
+			rs = stmt.executeQuery();
 			while (rs.next()) {				
 		    	
 				tptEnumJsonObject.addProperty("tpStatus", rs.getString("tpStatus"));
@@ -37,21 +42,25 @@ public class TrainingPlanTemplateEnumDbDeclaration {
 				tptEnumJsonObject.addProperty("jog", rs.getString("pace_jog"));
 				tptEnumJsonObject.addProperty("fast", rs.getString("pace_fast"));
 				tptEnumJsonObject.addProperty("recovery", rs.getString("pace_recovery"));
-
 			}
 		} catch (SQLException e) {
             System.out.println("SQL Query Error: " + e.getMessage());
 		} catch (Exception e) {
             System.out.println("Query Error: " + e.getStackTrace());
+		} finally {
+		    DbUtils.closeQuietly(stmt);
+		    DbUtils.closeQuietly(rs);
+		    DbUtils.closeQuietly(conn);
 		}
 		return tptEnumJsonObject;
 	}
 	
     public boolean update(String tpOwnerId, String weeks){
 		String updateTableSQL = "UPDATE t_oracle_tp SET weeks=? WHERE tpOwnerId=?";
+		PreparedStatement preparedStatement = null;
 
-		try (PreparedStatement preparedStatement = this.conn
-				.prepareStatement(updateTableSQL);) {
+		try {
+			preparedStatement = this.conn.prepareStatement(updateTableSQL);
 			preparedStatement.setString(1, weeks);
 			preparedStatement.setString(2, tpOwnerId);
 
@@ -63,14 +72,17 @@ public class TrainingPlanTemplateEnumDbDeclaration {
 		} catch (Exception e) {
             System.out.println("Update Error: "	+ e.getMessage());
             return false;            
+		} finally {
+		    DbUtils.closeQuietly(preparedStatement);
+		    DbUtils.closeQuietly(conn);
 		}
     }
     
     public boolean updateNew(String updateTableSQL){
 
-		try (PreparedStatement preparedStatement = this.conn
-				.prepareStatement(updateTableSQL);) {
-
+    	PreparedStatement preparedStatement = null;
+		try {
+			preparedStatement = this.conn.prepareStatement(updateTableSQL);
 			preparedStatement.executeUpdate();
             return true;
 		} catch (SQLException e) {
@@ -79,10 +91,13 @@ public class TrainingPlanTemplateEnumDbDeclaration {
 		} catch (Exception e) {
             System.out.println("Update Error: "	+ e.getMessage());
             return false;            
+		} finally {
+		    DbUtils.closeQuietly(preparedStatement);
+		    DbUtils.closeQuietly(conn);
 		}
     }
     
-    public JsonObject getPlanTemplateEnum(){
+    public JsonObject getPlanTemplateEnum() {
 		String queryStr = "SELECT * FROM t_oracle_tptenum";
 		return this.query(queryStr);
     }
