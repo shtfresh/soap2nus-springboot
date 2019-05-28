@@ -92,7 +92,6 @@ public class TrainingPlanController {
     	}
     	
     	String tpOwnerId = tpItemJsonObject.get("tpOwnerId").toString().replace("\"", "");
-    	RestControllerFilter.checkTPConnection(edaoTp);
     	TrainingPlan tp = edaoTp.getActivePlan(tpOwnerId);
     	if (tp != null) {
     		// update status to inactive
@@ -208,7 +207,6 @@ public class TrainingPlanController {
     	JsonObject resultJsonObject = new JsonObject();
     	boolean result;
     	String tpOwnerId = tpItemJsonObject.get("tpOwnerId").toString().replace("\"", "");
-    	RestControllerFilter.checkTPConnection(edaoTp);
     	TrainingPlan tp = edaoTp.getActivePlan(tpOwnerId);
     	if (tp == null) {
     		return Results.failReturnJsonObject(String.format("fail: %s no active tp", tpOwnerId)).toString();
@@ -336,9 +334,10 @@ public class TrainingPlanController {
                      		String updateSql = String.format("UPDATE t_oracle_tp SET weeks = JSON_REPLACE(weeks,'$[%d].%s.status', \"%s\")"
                      				+ " where tpOwnerId = \"%s\"", 
                      				count, entry.getKey(), "incomplete", tp.gettpOwnerId());
+                     		RestControllerFilter.checkTPConnection(edaoTp);
                      		result = edaoTp.update(updateSql);
                      		if (!result) {
-                     			Results.failReturnJsonObject("fail: flushPlanStatusToIncomplete, fail update").toString();
+                     			return Results.failReturnJsonObject("fail: flushPlanStatusToIncomplete, fail update").toString();
                      		} else {
                      			found = true;
                      			break;
