@@ -1,4 +1,4 @@
-package com.example.helloworld;
+package com.example.AITrainer;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

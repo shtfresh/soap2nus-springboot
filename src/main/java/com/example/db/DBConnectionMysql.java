@@ -7,12 +7,10 @@ import java.sql.SQLException;
 import com.mysql.jdbc.Connection;
 
 public class DBConnectionMysql {
-
-    private static final String URL = "jdbc:mysql://";
-    private static final String DRIVER = "com.mysql.jdbc.Driver";
-    public static final String LOCAL_USERNAME = "readygo";
-    public static final String LOCAL_PASSWORD = "37eVE9fe0@f73409";
-    public static final String LOCAL_DEFAULT_CONNECT_DESCRIPTOR = "10.22.31.100:6033/readygo";
+    private static final String URL = DBConfigProperties.values("URL");
+    private static final String DRIVER = DBConfigProperties.values("DRIVER");
+    public static final String USERNAME = DBConfigProperties.values("USERNAME");
+    public static final String PASSWORD = DBConfigProperties.values("PASSWORD");
 
     private static Connection connection = null;
     private static DBConnectionMysql instance = null;
@@ -26,21 +24,16 @@ public class DBConnectionMysql {
     }
 
     public static DBConnectionMysql getInstance() {
-        //if (connection == null) {
-            instance = new DBConnectionMysql();
-        //}
+        instance = new DBConnectionMysql();
         return instance;
     }
 
     public Connection getConnection() {
-        //if (connection == null) {
-            try {     
-            	//System.out.println("#### OCCS_DEFAULT_CONNECT_DESCRIPTOR = " +OCCS_DEFAULT_CONNECT_DESCRIPTOR);
-        		connection = (Connection)DriverManager.getConnection(URL + LOCAL_DEFAULT_CONNECT_DESCRIPTOR, LOCAL_USERNAME, LOCAL_PASSWORD);
-            } catch (SQLException e) {
-                e.getMessage();
-            }
-        //}
+        try {
+        	connection = (Connection)DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        } catch (SQLException e) {
+            e.getMessage();
+        }
         return connection;
     }
 }

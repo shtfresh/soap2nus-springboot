@@ -1,4 +1,4 @@
-package com.example.helloworld;
+package com.example.AITrainer;
 
 import java.io.IOException;
 import java.sql.SQLException;
