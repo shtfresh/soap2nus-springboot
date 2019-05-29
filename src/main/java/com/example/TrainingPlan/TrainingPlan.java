@@ -16,6 +16,7 @@ public class TrainingPlan {
     private final String tpEnd;
     private final String tpTargetType;
     private final String tpTargetMatchid;
+    private final String tpTargetMatchName;
     private final int tpVersionNo ;
     private final String minKilometre;
     private final String maxKilometre;
@@ -28,8 +29,8 @@ public class TrainingPlan {
     private String weeks;
     
     public TrainingPlan(String tpId, String tpOwnerId, String tpPublishedAt, String tpUpdateAt, String tpOwner, 
-    		String tpStatus, String tpStart, String tpEnd, String tpTargetType, String tpTargetMatchid, int tpVersionNo, String minKilometre, String maxKilometre,
-    		String tptId, String tptTile, String tptType, String tptDescrition, String weeks) {
+    		String tpStatus, String tpStart, String tpEnd, String tpTargetType, String tpTargetMatchid, String tpTargetMatchName, int tpVersionNo, 
+    		String minKilometre, String maxKilometre, String tptId, String tptTile, String tptType, String tptDescrition, String weeks) {
     	
     	this.tpId = tpId;
     	this.tpOwnerId = tpOwnerId;
@@ -41,6 +42,7 @@ public class TrainingPlan {
     	this.tpEnd = tpEnd;
     	this.tpTargetType = tpTargetType;
     	this.tpTargetMatchid = tpTargetMatchid;
+    	this.tpTargetMatchName = tpTargetMatchName;
     	this.tpVersionNo = tpVersionNo;
     	this.minKilometre = minKilometre;
     	this.maxKilometre = maxKilometre;
@@ -90,6 +92,10 @@ public class TrainingPlan {
     
     public String gettpTargetMatchid() {
         return this.tpTargetMatchid;
+    }
+    
+    public String gettpTargetMatchName() {
+    	return this.tpTargetMatchName;
     }
     
     public int gettpVersionNo() {

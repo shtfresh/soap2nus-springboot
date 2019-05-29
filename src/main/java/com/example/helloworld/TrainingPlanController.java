@@ -80,8 +80,12 @@ public class TrainingPlanController {
     	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         TrainingPlanTemplateEnumDbDeclaration edaoTpEnum = new TrainingPlanTemplateEnumDbDeclaration();
     	JsonObject tptEnumJsonObject = edaoTpEnum.getPlanTemplateEnum();
-    	
-    	JsonObject tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
+    	JsonObject tpItemJsonObject = null;
+    	try {
+    		tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
+    	} catch (Exception e) {
+    		return new TrainingPlanResponse("01", "fail: invalid options", null);
+    	}
     	
     	// get tpt
     	TrainingPlanTemplate tpt;
@@ -107,11 +111,8 @@ public class TrainingPlanController {
     	JsonArray weeksjsonArray = new JsonParser().parse(tpt.getWeeks()).getAsJsonArray();
     	for (JsonElement pa : weeksjsonArray) {
     		JsonObject temp = pa.getAsJsonObject();
-        	//List<String> listInfo = new ArrayList<String>();
         	Set<Map.Entry<String, JsonElement>> entries = temp.entrySet();
         	for (Map.Entry<String, JsonElement> entry: entries) {
-        		//System.out.println(entry.getKey());
-
         		JsonElement taskItem = entry.getValue().getAsJsonObject().get("tasks");
         		if (taskItem != null) {
     				int minKilometre = 0;
@@ -120,7 +121,6 @@ public class TrainingPlanController {
         				int repeat = 0;
         				repeat = Integer.parseInt(pb.getAsJsonObject().get("Re").toString());
         				
-        				//System.out.println(repeat);
         				for (JsonElement pasubTask : pb.getAsJsonObject().get("task").getAsJsonArray()) {
             				int min = 0;
             				int max = 0;
@@ -148,7 +148,6 @@ public class TrainingPlanController {
             		        	maxKilometre = maxKilometre + value*repeat*1000;
         		        	}
         				}
-    		        	
             			entry.getValue().getAsJsonObject().addProperty("minKilometre", String.valueOf(minKilometre));
             			entry.getValue().getAsJsonObject().addProperty("maxKilometre", String.valueOf(maxKilometre));	
         				entry.getValue().getAsJsonObject().addProperty("status", "planned");
@@ -169,25 +168,31 @@ public class TrainingPlanController {
     	System.out.println(weeksjsonArray.toString());
     	boolean result;
 
-    	TrainingPlan tpNew = new TrainingPlan(
-    			"tp"+randomTPID+counter.incrementAndGet(),
-    			tpItemJsonObject.get("tpOwnerId").toString().replace("\"", ""),
-    			df.format(new Date()),
-    			"",
-    			tpItemJsonObject.get("tpOwner").toString().replace("\"", ""),
-    			"active",
-    			tpItemJsonObject.get("tpStart").toString().replace("\"", ""),
-    			tpItemJsonObject.get("tpEnd").toString().replace("\"", ""),
-    			tpItemJsonObject.get("tpTargetType").toString().replace("\"", ""),
-    			tpItemJsonObject.get("tpTargetMatchid").toString().replace("\"", ""),
-    			1,
-    			String.valueOf(totalminKilometre),
-    			String.valueOf(totalmaxKilometre),
-    			tpt.gettptId(),
-    			tpt.gettptTile(),
-    			tpt.gettptType(),
-    			tpt.gettptDescrition(),
-    			weeksjsonArray.toString());
+    	TrainingPlan tpNew = null;
+    	try {
+	    	tpNew = new TrainingPlan(
+	    			"tp"+randomTPID+counter.incrementAndGet(),
+	    			tpItemJsonObject.get("tpOwnerId").toString().replace("\"", ""),
+	    			df.format(new Date()),
+	    			"",
+	    			tpItemJsonObject.get("tpOwner").toString().replace("\"", ""),
+	    			"active",
+	    			tpItemJsonObject.get("tpStart").toString().replace("\"", ""),
+	    			tpItemJsonObject.get("tpEnd").toString().replace("\"", ""),
+	    			tpItemJsonObject.get("tpTargetType").toString().replace("\"", ""),
+	    			tpItemJsonObject.get("tpTargetMatchid").toString().replace("\"", ""),
+	    			tpItemJsonObject.get("tpTargetMatchName").toString().replace("\"", ""),
+	    			1,
+	    			String.valueOf(totalminKilometre),
+	    			String.valueOf(totalmaxKilometre),
+	    			tpt.gettptId(),
+	    			tpt.gettptTile(),
+	    			tpt.gettptType(),
+	    			tpt.gettptDescrition(),
+	    			weeksjsonArray.toString());
+    	} catch (Exception e) {
+    		return new TrainingPlanResponse("01", "fail: invalid options", null);
+    	}
     	
     	RestControllerFilter.checkTPConnection(edaoTp);
     	result = edaoTp.add(tpNew);
@@ -201,9 +206,13 @@ public class TrainingPlanController {
     @ResponseBody
     @RequestMapping(value="/tpstatus",method=RequestMethod.POST,produces="application/json;charset=UTF-8")
     public String updatePlanStatus(@RequestBody String tpItem) {
-    	
     	Map<String, String> mapNeedModify = new HashMap<String, String>();
-    	JsonObject tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
+    	JsonObject tpItemJsonObject = null;
+    	try {
+    		tpItemJsonObject = new JsonParser().parse(tpItem).getAsJsonObject();
+    	} catch (Exception e) {
+    		return Results.failReturnJsonObject("fail: invalid options").toString();
+    	}
     	JsonObject resultJsonObject = new JsonObject();
     	boolean result;
     	String tpOwnerId = tpItemJsonObject.get("tpOwnerId").toString().replace("\"", "");
