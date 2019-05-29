@@ -19,7 +19,9 @@ public class DBConfigProperties {
 		InputStream fps = null;
 		try	{
 			Path basepath = Paths.get(".").toAbsolutePath().normalize();
-			fps = new BufferedInputStream(new FileInputStream(new File(basepath.toString()+"/src/main/resources/database.properties")));
+			System.out.println(basepath);
+			//fps = new BufferedInputStream(new FileInputStream(new File(basepath.toString()+"/src/main/resources/database.properties")));
+			fps = new BufferedInputStream(new FileInputStream(new File("src/main/resources/database.properties")));
 			pp.load(fps);
 		} catch (IOException e) {
 			System.out.println("Read database.properties file failed !");
