@@ -11,6 +11,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
+import org.springframework.util.ResourceUtils;
+
 public class DBConfigProperties {
 	static Properties pp;
 	
@@ -18,10 +20,14 @@ public class DBConfigProperties {
 		pp = new Properties();
 		InputStream fps = null;
 		try	{
-			Path basepath = Paths.get(".").toAbsolutePath().normalize();
-			System.out.println(basepath);
-			//fps = new BufferedInputStream(new FileInputStream(new File(basepath.toString()+"/src/main/resources/database.properties")));
-			fps = new BufferedInputStream(new FileInputStream(new File("src/main/resources/database.properties")));
+			//Path basepath = Paths.get(".").toAbsolutePath().normalize();
+			//System.out.println(basepath);
+			File path = new File(ResourceUtils.getURL("classpath:").getPath());
+			String strDirPath = path.getAbsolutePath();
+			System.out.println(strDirPath);
+			strDirPath=strDirPath.replace("\\target\\classes", "");
+			System.out.println(strDirPath);
+			fps = new BufferedInputStream(new FileInputStream(new File(strDirPath+"/resources/database.properties"))); 
 			pp.load(fps);
 		} catch (IOException e) {
 			System.out.println("Read database.properties file failed !");
