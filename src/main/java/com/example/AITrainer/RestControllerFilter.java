@@ -12,21 +12,28 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.example.db.DBConnectionMysql;
 import com.example.db.TrainingPlanDbDeclaration;
 import com.example.db.TrainingPlanTemplateDbDeclaration;
-import com.example.db.TrainingPlanTemplateEnumDbDeclaration;
 
 
 @Component
 //@Order(1)
 //@WebFilter(urlPatterns = {"/*"})
 public class RestControllerFilter implements Filter {
+	@Autowired
+	private DBConfigProperties dbProperties;
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         System.out.println("########## Initiating RestController filter ##########");
+        DBConnectionMysql.URL = dbProperties.getUrl();
+        DBConnectionMysql.DRIVER = dbProperties.getDriver();
+        DBConnectionMysql.USERNAME = dbProperties.getUsername();
+        DBConnectionMysql.PASSWORD = dbProperties.getPassword();
     }
 
     @Override

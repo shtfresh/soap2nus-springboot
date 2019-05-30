@@ -24,7 +24,6 @@ import com.google.gson.JsonParser;
 
 @RestController
 public class TrainingPlanTemplateController {
-
     private final AtomicLong counter = new AtomicLong();
     private final String randomTPTID = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
     

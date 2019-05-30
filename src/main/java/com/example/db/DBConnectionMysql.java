@@ -4,13 +4,19 @@ package com.example.db;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.example.AITrainer.DBConfigProperties;
+//import com.example.AITrainer.DBConfigPropertiesC;
 import com.mysql.jdbc.Connection;
 
 public class DBConnectionMysql {
-    private static final String URL = DBConfigProperties.values("URL");
-    private static final String DRIVER = DBConfigProperties.values("DRIVER");
-    public static final String USERNAME = DBConfigProperties.values("USERNAME");
-    public static final String PASSWORD = DBConfigProperties.values("PASSWORD");
+	public static String URL = "";
+	public static String DRIVER  = "";
+	public static String USERNAME = "";
+	public static String PASSWORD = "";
 
     private static Connection connection = null;
     private static DBConnectionMysql instance = null;
