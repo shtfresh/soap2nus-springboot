@@ -49,7 +49,7 @@ public class TrainingPlanTemplateDbDeclaration {
     public boolean add(TrainingPlanTemplate tptItem){
 		String insertTableSQL = "INSERT INTO t_oracle_tpt "
 				+ "(tptId, tptTile, tptType, tptCategory, tptDescrition, publishedAt, weeks) "
-				+ "VALUES(?,?,?,?,?,?)";
+				+ "VALUES(?,?,?,?,?,?,?)";
 		PreparedStatement preparedStatement = null;
 
 		try {
@@ -57,10 +57,10 @@ public class TrainingPlanTemplateDbDeclaration {
 			preparedStatement.setString(1, tptItem.gettptId().replace("\"", ""));
 			preparedStatement.setString(2, tptItem.gettptTile().replace("\"", ""));
 			preparedStatement.setString(3, tptItem.gettptType().replace("\"", ""));
-			preparedStatement.setString(3, tptItem.gettptCategory().replace("\"", ""));
-			preparedStatement.setString(4, tptItem.gettptDescrition().replace("\"", ""));
-			preparedStatement.setString(5, tptItem.getPublishedAt().replace("\"", ""));
-			preparedStatement.setString(6, tptItem.getWeeks());
+			preparedStatement.setString(4, tptItem.gettptCategory().replace("\"", ""));
+			preparedStatement.setString(5, tptItem.gettptDescrition().replace("\"", ""));
+			preparedStatement.setString(6, tptItem.getPublishedAt().replace("\"", ""));
+			preparedStatement.setString(7, tptItem.getWeeks());
 
 			preparedStatement.executeUpdate();
             return true;
@@ -83,11 +83,11 @@ public class TrainingPlanTemplateDbDeclaration {
 			preparedStatement = this.conn.prepareStatement(updateTableSQL);
 			preparedStatement.setString(1, tptItem.gettptTile().replace("\"", ""));
 			preparedStatement.setString(2, tptItem.gettptType().replace("\"", ""));
-			preparedStatement.setString(2, tptItem.gettptCategory().replace("\"", ""));
-			preparedStatement.setString(3, tptItem.gettptDescrition().replace("\"", ""));
-			preparedStatement.setString(4, tptItem.getPublishedAt().replace("\"", ""));
-			preparedStatement.setString(5, tptItem.getWeeks());
-			preparedStatement.setString(6, tptId);
+			preparedStatement.setString(3, tptItem.gettptCategory().replace("\"", ""));
+			preparedStatement.setString(4, tptItem.gettptDescrition().replace("\"", ""));
+			preparedStatement.setString(5, tptItem.getPublishedAt().replace("\"", ""));
+			preparedStatement.setString(6, tptItem.getWeeks());
+			preparedStatement.setString(7, tptId);
 
 			preparedStatement.executeUpdate();
             return true;
