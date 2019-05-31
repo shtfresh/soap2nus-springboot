@@ -1,3 +1,5 @@
+DROP TABLE `t_oracle_tpt`;
+
 CREATE TABLE `t_oracle_tpt` (
   `tptId` varchar(50) NOT NULL,
   `tptTile` varchar(50) DEFAULT NULL,
@@ -9,6 +11,7 @@ CREATE TABLE `t_oracle_tpt` (
   PRIMARY KEY (`tptId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE `t_oracle_tp`;
 
 CREATE TABLE `t_oracle_tp` (
   `tpId` varchar(50) NOT NULL,
@@ -32,6 +35,8 @@ CREATE TABLE `t_oracle_tp` (
   `weeks` json DEFAULT NULL,
   PRIMARY KEY (`tpId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE `t_oracle_tptenum`;
 
 CREATE TABLE `t_oracle_tptenum` (
   `tpStatus` json DEFAULT NULL,
