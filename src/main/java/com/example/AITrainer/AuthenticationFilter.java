@@ -20,8 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.stereotype.Component;
-
 import com.google.common.hash.Hashing;
 import com.google.common.io.CharStreams;
 import com.google.gson.JsonObject;

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.Results.Results;
 import com.example.TrainingPlan.TrainingPlan;
 import com.example.client.ReadyGoClient;
-import com.example.db.TrainingPlanDbDeclaration;
+import com.example.service.TPService;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -28,6 +28,9 @@ public class UserProfileMatchController {
 	
     @Autowired
     ReadyGoClient readygoClient;
+    
+    @Autowired
+    TPService tpService;
 
     @RequestMapping(value="/loadUserContext/{userId}",method=RequestMethod.GET,produces="application/json;charset=UTF-8")
     public String loadUserContext(@PathVariable String userId) {
@@ -68,10 +71,9 @@ public class UserProfileMatchController {
     	// getStatus for a training plan
     	JsonObject statusJsonObject = new JsonObject();
     	JsonArray weeksjsonArray = null;
-    	TrainingPlanDbDeclaration edaoTp = new TrainingPlanDbDeclaration();
-    	TrainingPlan trainingPlan = edaoTp.getActivePlan(userId);
+    	TrainingPlan trainingPlan = tpService.getActivePlan(userId);
     	if (trainingPlan == null) {
-    		System.out.println(String.format("Fail: userID: %s does not exist", userId));
+    		System.out.println(String.format("Fail: userID: %s does not exist in tp", userId));
     	} else {
 	    	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 	    	String requestDate = df.format(new Date());
@@ -94,7 +96,6 @@ public class UserProfileMatchController {
 	        		}
 	        	}
 	        }
-	    	//System.out.println(statusJsonObject.toString());
     	}
 
     	resultJsonObject.add("isTrainingDoneToday", statusJsonObject);

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mapper.TPTMapper">
+	<resultMap id="tptList" type="com.example.TrainingPlanTemplate.TrainingPlanTemplate">
+        <id column="tptId" property="tptId" />
+        <result column="tptTile" property="tptTile" />
+        <result column="tptType" property="tptType" />
+        <result column="tptCategory" property="tptCategory" />
+        <result column="tptDescrition" property="tptDescrition" />
+        <result column="publishedAt" property="publishedAt" />
+        <result column="weeks" property="weeks" />
+    </resultMap>
+    
+    <select id="addTPT" parameterType="com.example.TrainingPlanTemplate.TrainingPlanTemplate">
+        INSERT INTO 
+            t_oracle_tpt
+            (tptId,tptTile,tptType,tptCategory,tptDescrition,publishedAt,weeks) 
+        VALUES
+            (#{tptId}, #{tptTile}, #{tptType}, #{tptCategory}, #{tptDescrition}, #{publishedAt},#{weeks})
+    </select>
+    
+    <select id="updateTPT" parameterType="com.example.TrainingPlanTemplate.TrainingPlanTemplate">
+        UPDATE 
+            t_oracle_tpt
+        SET
+        	<if test="tptTile != null">tptTile = #{tptTile},</if>
+        	<if test="tptType != null">tptType = #{tptType},</if>
+        	<if test="tptCategory != null">tptCategory = #{tptCategory},</if>
+        	<if test="tptDescrition != null">tptDescrition = #{tptDescrition},</if>
+        	<if test="publishedAt != null">publishedAt = #{publishedAt},</if>
+        	<if test="weeks != null">weeks = #{weeks}</if>
+        WHERE
+        	tptId = #{tptId}
+    </select>
+    
+    <select id="deleteTPT" parameterType="Map">
+        DELETE FROM t_oracle_tpt
+        WHERE tptId = #{tptId}
+    </select>
+    
+    <select id="getTPT" parameterType="Map" resultType="com.example.TrainingPlanTemplate.TrainingPlanTemplate">
+        select * from t_oracle_tpt
+        where tptId = #{tptId}
+    </select>
+
+    <select id="listAllTPT" parameterType="Map" resultMap="tptList">
+        select * from t_oracle_tpt
+        <where>
+        	<if test="tptType != null">tptType = #{tptType}</if>
+        	<if test="tptCategory != null">and tptCategory = #{tptCategory}</if>
+        </where>	
+    </select>
+</mapper>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mapper.TPMapper">
+	<resultMap id="tpList" type="com.example.TrainingPlan.TrainingPlan">
+        <id column="tpId" property="tpId" />
+        <result column="tpOwnerId" property="tpOwnerId" />
+        <result column="tpPublishedAt" property="tpPublishedAt" />
+        <result column="tpUpdateAt" property="tpUpdateAt" />
+        <result column="tpOwner" property="tpOwner" />
+        <result column="tpStatus" property="tpStatus" />
+        <result column="tpStart" property="tpStart" />
+        <result column="tpEnd" property="tpEnd" />
+        <result column="tpTargetType" property="tpTargetType" />
+        <result column="tpTargetMatchid" property="tpTargetMatchid" />
+        <result column="tpTargetMatchName" property="tpTargetMatchName" />
+        <result column="tpVersionNo" property="tpVersionNo" />
+        <result column="minKilometre" property="minKilometre" />
+        <result column="maxKilometre" property="maxKilometre" />
+        <result column="tptId" property="tptId" />
+        <result column="tptTile" property="tptTile" />
+        <result column="tptType" property="tptType" />
+        <result column="tptDescrition" property="tptDescrition" />
+        <result column="weeks" property="weeks" />
+    </resultMap>
+    
+    <select id="getActiveTP" parameterType="Map" resultType="com.example.TrainingPlan.TrainingPlan">
+        select * from t_oracle_tp
+        where tpOwnerId = #{tpOwnerId} and tpStatus = "active"
+    </select>
+    
+    <select id="getAllTP" parameterType="Map" resultMap="tpList">
+        select * from t_oracle_tp
+        where tpOwnerId = #{tpOwnerId}
+    </select>
+    
+    <select id="getAllActiveTP" parameterType="Map" resultMap="tpList">
+        select * from t_oracle_tp
+        where tpStatus = "active"
+    </select>
+    
+    <select id="getTP" parameterType="Map" resultMap="tpList">
+        select * from t_oracle_tp
+        where tpId = #{tpId}
+    </select>
+    
+    <select id="updateTPStatus" parameterType="Map">
+        UPDATE 
+            t_oracle_tp
+        SET
+        	<if test="tpStatus != null">tpStatus = #{tpStatus}</if>
+        WHERE
+        	tpId = #{tpId}
+    </select>
+    
+    <select id="addTP" parameterType="com.example.TrainingPlan.TrainingPlan">
+        INSERT INTO 
+            t_oracle_tp
+            (tpId, tpOwnerId, tpPublishedAt, tpUpdateAt, tpOwner, tpStatus, tpStart, tpEnd, tpTargetType, tpTargetMatchid, tpTargetMatchName, 
+            tpVersionNo, minKilometre, maxKilometre, tptId, tptTile, tptType, tptDescrition, weeks) 
+        VALUES
+            (#{tpId}, #{tpOwnerId}, #{tpPublishedAt}, #{tpUpdateAt}, #{tpOwner}, #{tpStatus},#{tpStart},#{tpEnd},#{tpTargetType},
+            #{tpTargetMatchid},#{tpTargetMatchName},#{tpVersionNo},#{minKilometre},#{maxKilometre},
+            #{tptId},#{tptTile},#{tptType},#{tptDescrition},#{weeks})
+    </select>
+    
+    <select id="updateTP" parameterType="Map">
+        UPDATE 
+            t_oracle_tp
+        SET
+        	<if test="tpUpdateAt != null">tpUpdateAt = #{tpUpdateAt},</if>
+        	<if test="weeks != null">weeks = #{weeks}</if>
+        WHERE
+        	tpOwnerId = #{tpOwnerId}
+    </select>
+    
+    <select id="deleteTP" parameterType="Map">
+        DELETE FROM t_oracle_tp
+        WHERE tpId = #{tpId}
+    </select>
+    
+    <!--
+    <select id="updateTP" parameterType="Map">
+        UPDATE 
+            t_oracle_tp
+        SET
+        	<if test="tpUpdateAt != null">tpUpdateAt = #{tpUpdateAt},</if>
+        	weeks = JSON_REPLACE(weeks,'$[#{index}].#{day}.status', "#{status}", '$[#{index}].#{day}.finished', "#{finished}")
+        WHERE
+        	where tpOwnerId = #{tpOwnerId}
+     </select>-->
+    
+</mapper>
