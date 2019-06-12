@@ -225,7 +225,7 @@ public class TrainingPlanController {
     		return Results.failReturnJsonObject("fail: invalid options").toString();
     	}
     	JsonObject resultJsonObject = new JsonObject();
-    	boolean result;
+    	//boolean result;
     	String tpOwnerId = tpItemJsonObject.get("tpOwnerId").toString().replace("\"", "");
     	TrainingPlan tp = tpService.getActivePlan(tpOwnerId);
     	if (tp == null) {
@@ -246,7 +246,7 @@ public class TrainingPlanController {
             		resultJsonObject.addProperty("date", requestDate);
     				mapNeedModify.put("day", entry.getKey());
     				mapNeedModify.put("index", Integer.toString(count));
-    				int kilometers = Double.valueOf(tpItemJsonObject.get("kilometers").toString().replace("\"", "")).intValue() * 1000;
+    				int kilometers = Double.valueOf(tpItemJsonObject.get("kilometers").toString().replace("\"", "")).intValue();
     				int finished = Double.valueOf(entry.getValue().getAsJsonObject().get("finished").toString().replace("\"", "")).intValue();
     				if (kilometers > finished) {
     					mapNeedModify.put("finished", String.valueOf(kilometers));
