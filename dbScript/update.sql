@@ -1,1 +1,1 @@
-alter table t_oracle_tp add column tpTargetMatchName varchar(50) after tpTargetMatchid
+alter table t_oracle_tp add column totalDays int(50) after maxKilometre

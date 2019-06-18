@@ -17,6 +17,7 @@
         <result column="tpVersionNo" property="tpVersionNo" />
         <result column="minKilometre" property="minKilometre" />
         <result column="maxKilometre" property="maxKilometre" />
+        <result column="totalDays" property="totalDays" />
         <result column="tptId" property="tptId" />
         <result column="tptTile" property="tptTile" />
         <result column="tptType" property="tptType" />
@@ -57,10 +58,10 @@
         INSERT INTO 
             t_oracle_tp
             (tpId, tpOwnerId, tpPublishedAt, tpUpdateAt, tpOwner, tpStatus, tpStart, tpEnd, tpTargetType, tpTargetMatchid, tpTargetMatchName, 
-            tpVersionNo, minKilometre, maxKilometre, tptId, tptTile, tptType, tptDescrition, weeks) 
+            tpVersionNo, minKilometre, maxKilometre, totalDays, tptId, tptTile, tptType, tptDescrition, weeks)
         VALUES
             (#{tpId}, #{tpOwnerId}, #{tpPublishedAt}, #{tpUpdateAt}, #{tpOwner}, #{tpStatus},#{tpStart},#{tpEnd},#{tpTargetType},
-            #{tpTargetMatchid},#{tpTargetMatchName},#{tpVersionNo},#{minKilometre},#{maxKilometre},
+            #{tpTargetMatchid},#{tpTargetMatchName},#{tpVersionNo},#{minKilometre},#{maxKilometre},#{totalDays},
             #{tptId},#{tptTile},#{tptType},#{tptDescrition},#{weeks})
     </select>
     

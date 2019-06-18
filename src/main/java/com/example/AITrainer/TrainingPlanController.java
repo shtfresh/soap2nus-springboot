@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
@@ -117,11 +116,14 @@ public class TrainingPlanController {
 
     	int totalminKilometre = 0;
     	int totalmaxKilometre = 0;
+    	int totalDays = 0;
+    	int totalTrainingDays = 0;
     	LocalDate startTime = LocalDate.parse(tpItemJsonObject.get("tpStart").toString().replace("\"", ""));
     	JsonArray weeksjsonArray = new JsonParser().parse(tpt.getWeeks()).getAsJsonArray();
     	for (JsonElement pa : weeksjsonArray) {
     		JsonObject temp = pa.getAsJsonObject();
         	Set<Map.Entry<String, JsonElement>> entries = temp.entrySet();
+
         	for (Map.Entry<String, JsonElement> entry: entries) {
         		JsonElement taskItem = entry.getValue().getAsJsonObject().get("tasks");
         		if (taskItem != null) {
@@ -164,12 +166,15 @@ public class TrainingPlanController {
         				totalminKilometre += minKilometre;
         		    	totalmaxKilometre += maxKilometre;
         			}
+        			totalTrainingDays += 1;
         		} else {
         			entry.getValue().getAsJsonObject().addProperty("status", "rest");
         		}
 				entry.getValue().getAsJsonObject().addProperty("finished", "0");
 				entry.getValue().getAsJsonObject().addProperty("date", startTime.toString());
+				entry.getValue().getAsJsonObject().addProperty("completeStatus", 1);
 				startTime = startTime.plusDays(1);
+				totalDays += 1;
         	}
     	}
     	
@@ -191,6 +196,7 @@ public class TrainingPlanController {
 	    			1,
 	    			String.valueOf(totalminKilometre),
 	    			String.valueOf(totalmaxKilometre),
+	    			totalDays - totalTrainingDays,
 	    			tpt.gettptId(),
 	    			tpt.gettptTile(),
 	    			tpt.gettptType(),
@@ -254,14 +260,21 @@ public class TrainingPlanController {
     				}
         			if (taskItem != null) {
 	    				int minKilometre = Integer.parseInt(entry.getValue().getAsJsonObject().get("minKilometre").toString().replace("\"", ""));
+	    				int maxKilometre = Integer.parseInt(entry.getValue().getAsJsonObject().get("maxKilometre").toString().replace("\"", ""));
 		        		if (kilometers > minKilometre) {
 		        			mapNeedModify.put("status", "completed");
 		        			resultJsonObject.addProperty("status", "completed");
 		        			entry.getValue().getAsJsonObject().addProperty("status", "completed");
+		        			if (kilometers > maxKilometre) {
+		        				entry.getValue().getAsJsonObject().addProperty("completeStatus", 4);
+		        			} else {
+		        				entry.getValue().getAsJsonObject().addProperty("completeStatus", 3);
+		        			}
 		        		} else {
 		        			mapNeedModify.put("status", "incompleted");
 		        			resultJsonObject.addProperty("status", "incompleted");
 		        			entry.getValue().getAsJsonObject().addProperty("status", "incompleted");
+		        			entry.getValue().getAsJsonObject().addProperty("completeStatus", 2);
 		        		}
 		        	} else {
 		        		mapNeedModify.put("status", "rest");
