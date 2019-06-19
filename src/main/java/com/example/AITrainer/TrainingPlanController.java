@@ -167,12 +167,13 @@ public class TrainingPlanController {
         		    	totalmaxKilometre += maxKilometre;
         			}
         			totalTrainingDays += 1;
+        			entry.getValue().getAsJsonObject().addProperty("completeStatus", 1);
         		} else {
         			entry.getValue().getAsJsonObject().addProperty("status", "rest");
+        			entry.getValue().getAsJsonObject().addProperty("completeStatus", 5);
         		}
 				entry.getValue().getAsJsonObject().addProperty("finished", "0");
 				entry.getValue().getAsJsonObject().addProperty("date", startTime.toString());
-				entry.getValue().getAsJsonObject().addProperty("completeStatus", 1);
 				startTime = startTime.plusDays(1);
 				totalDays += 1;
         	}
