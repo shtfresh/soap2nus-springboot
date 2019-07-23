@@ -3,9 +3,15 @@ package com.example.AITrainer;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.example.UserMatch.UserMatch;
+import com.example.mapper.UserMatchEnrollMapper;
+import com.example.service.UserMatchEnrollService;
+import com.example.service.UserMatchService;
+import com.netflix.discovery.converters.Auto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,7 +33,10 @@ import com.google.gson.JsonParser;
 public class UserProfileMatchController {
 	
     @Autowired
-    ReadyGoClient readygoClient;
+	UserMatchService userMatchService;
+
+    @Autowired
+    UserMatchEnrollService userMatchEnrollService;
     
     @Autowired
     TPService tpService;
@@ -40,34 +49,48 @@ public class UserProfileMatchController {
 
     	// userInfo
     	try {
-    		map = readygoClient.getUserInfoByUserId(userId);
+    		map = userMatchService.getUserInfoByUserId(userId);
     	} catch (Exception e) {
     		return Results.failReturnJsonObject(String.format("fail: getUserInfoByUserId inaccessible", userId)).toString();
     	}
-    	
-    	if (!map.get("code").equals(new String("00")) || map.get("results") == null) {
-    		return Results.failReturnJsonObject(String.format("fail: userID %s does not exist", userId)).toString();
-    	}
-    	JsonObject userInfoJsonObject = new JsonParser().parse(gson.toJson(map.get("results"))).getAsJsonObject();
+
+    	if (map == null) {
+			return Results.failReturnJsonObject(String.format("fail: userID %s does not exist", userId)).toString();
+		}
+		JsonObject userInfoJsonObject = new JsonParser().parse(gson.toJson(map)).getAsJsonObject();
     	resultJsonObject.add("userProfile", userInfoJsonObject);
-    	System.out.println(userInfoJsonObject.toString());
+    	//System.out.println(userInfoJsonObject.toString());
     	
     	// registeredMatchList
     	JsonArray registeredMatchListjsonArray = new JsonArray();
-    	Map<String , Object> map1 = null;
-    	try {
-    		map1 = readygoClient.queryReportMatchList(userId);
-    	} catch (Exception e) {
-    		System.out.println(String.format("queryReportMatchList Fail"));
-    	}
-    	if (map1.get("code").equals(new String("00"))) {
-    		registeredMatchListjsonArray = new JsonParser().parse(gson.toJson(map1.get("results"))).getAsJsonArray();
-    	} else {
-    		System.out.println(String.format("queryReportMatchList Fail: userID: %s does not exist", userId));
-    	}
-    	resultJsonObject.add("registeredMatchList", registeredMatchListjsonArray);
+        List<Map<String, Object>> returnEnrolledMatch = null;
+
+        returnEnrolledMatch = userMatchEnrollService.queryEnrolledMatchList(userId);
+        if(returnEnrolledMatch.size() > 0) {
+            for (Map<String, Object> matchMap: returnEnrolledMatch) {
+                for (String key: matchMap.keySet()) {
+                    UserMatch returnMatch;
+                    //System.out.println(key+":"+matchMap.get(key));
+                    try {
+                        returnMatch = userMatchService.queryReportMatchList(matchMap.get(key).toString());
+                    } catch (Exception e) {
+                        return Results.failReturnJsonObject(String.format("fail: queryReportMatchList inaccessible", userId)).toString();
+                    }
+                    if (returnMatch == null) {
+                        return Results.failReturnJsonObject(String.format("queryReportMatchList Fail: userID: %s " +
+								"doesn't enroll match %s", userId, matchMap.get(key).toString())).toString();
+                    }
+
+                    //registeredMatchListjsonArray = new JsonParser().parse(new Gson().toJson(returnMatchList)).getAsJsonArray();
+                    JsonObject matchJsonObject = new JsonParser().parse(gson.toJson(returnMatch)).getAsJsonObject();
+                    registeredMatchListjsonArray.add(matchJsonObject);
+                }
+            }
+        }
+        resultJsonObject.add("registeredMatchList", registeredMatchListjsonArray);
+
     	System.out.println(registeredMatchListjsonArray.toString());
-    	
+
     	// getStatus for a training plan
     	JsonObject statusJsonObject = new JsonObject();
     	JsonArray weeksjsonArray = null;
@@ -123,14 +146,14 @@ public class UserProfileMatchController {
     		return "Failed";
     	}		
     }*/
-    
+
     @RequestMapping(value="/userProfile/{userId}",method=RequestMethod.PUT,produces="application/json;charset=UTF-8" )
     public String updateUserInfo(@PathVariable String userId, @RequestBody String userInfo) {
     	JsonObject upUserInfoJsonObject = new JsonParser().parse(userInfo).getAsJsonObject();
     	Map<String , Object> map = null;
     
     	try {
-    		map = readygoClient.updateUser(Integer.valueOf(userId),
+    		userMatchService.updateUser(Integer.valueOf(userId),
         			upUserInfoJsonObject.get("age").toString().replace("\"", ""),
         			Integer.valueOf(upUserInfoJsonObject.get("gender").toString().replace("\"", "")),
         			upUserInfoJsonObject.get("height").toString().replace("\"", ""),
@@ -138,10 +161,6 @@ public class UserProfileMatchController {
     	} catch (Exception e) {
     		return Results.failReturnJsonObject("fail: update user profile").toString();
     	}
-    	if (map.get("code").equals(new String("00"))) {
-    		return Results.successReturnJsonObject(null).toString();
-    	} else {
-    		return Results.failReturnJsonObject("fail: update user profile").toString();
-    	}
+		return Results.successReturnJsonObject(null).toString();
     }
 }

@@ -15,7 +15,7 @@ import org.springframework.context.annotation.ComponentScan;
 @EnableTransactionManagement
 @ComponentScan(basePackages = { "com.example" })
 @MapperScan("com.example.mapper")
-@EnableEurekaClient
+//@EnableEurekaClient
 @EnableFeignClients(basePackages= {"com.example.client"})
 @ServletComponentScan
 public class AITrainerApplication {

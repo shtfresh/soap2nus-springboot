@@ -27,7 +27,7 @@
     
     <select id="getActiveTP" parameterType="Map" resultType="com.example.TrainingPlan.TrainingPlan">
         select * from t_oracle_tp
-        where tpOwnerId = #{tpOwnerId} and tpStatus = "active"
+        where tpOwnerId = #{tpOwnerId} and tpStatus = 'active'
     </select>
     
     <select id="getAllTP" parameterType="Map" resultMap="tpList">

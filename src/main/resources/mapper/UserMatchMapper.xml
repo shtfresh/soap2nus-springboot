@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mapper.UserMatchMapper">
+    <resultMap id="matchList" type="com.example.UserMatch.UserMatch">
+        <id column="matchId" property="matchId" jdbcType="VARCHAR"/>
+        <result column="matchName" property="matchName" jdbcType="VARCHAR"/>
+        <result column="matchStartTime" property="matchStartTime" jdbcType="VARCHAR"/>
+        <result column="matchAddress" property="matchAddress" jdbcType="VARCHAR"/>
+        <result column="matchType" property="matchType" jdbcType="VARCHAR"/>
+        <result column="matchDesp" property="matchDesp" jdbcType="VARCHAR"/>
+        <result column="CompetitionRule" property="CompetitionRule" jdbcType="VARCHAR"/>
+        <result column="EnrollGuide" property="EnrollGuide" jdbcType="VARCHAR"/>
+        <result column="OtherInfo" property="OtherInfo" jdbcType="VARCHAR"/>
+        <result column="Banner" property="Banner" jdbcType="VARCHAR"/>
+    </resultMap>
+    <select id="getUserInfoByUserId" resultType="Map">
+		SELECT * FROM t_oracle_user where userId = #{userId}
+    </select>
+
+    <select id="updateUser" resultType="Map">
+        UPDATE
+        t_oracle_user
+        SET
+        <if test="gender != null">gender = #{gender},</if>
+        <if test="height != null">height = #{height},</if>
+        <if test="weight != null">weight = #{weight}</if>
+        WHERE
+        userId = #{userId}
+    </select>
+
+    <select id="queryReportMatchList" resultType="com.example.UserMatch.UserMatch">
+        SELECT * FROM t_oracle_match where matchId = #{matchId}
+    </select>
+</mapper>

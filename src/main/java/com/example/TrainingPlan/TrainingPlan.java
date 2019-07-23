@@ -17,10 +17,10 @@ public class TrainingPlan {
     private final String tpTargetType;
     private final String tpTargetMatchid;
     private final String tpTargetMatchName;
-    private final int tpVersionNo ;
+    private final String tpVersionNo ;
     private final String minKilometre;
     private final String maxKilometre;
-    private final int totalDays;
+    private final String totalDays;
     
     private final String tptId;
     private final String tptTile;
@@ -30,8 +30,8 @@ public class TrainingPlan {
     private String weeks;
     
     public TrainingPlan(String tpId, String tpOwnerId, String tpPublishedAt, String tpUpdateAt, String tpOwner, 
-    		String tpStatus, String tpStart, String tpEnd, String tpTargetType, String tpTargetMatchid, String tpTargetMatchName, 
-    		int tpVersionNo, String minKilometre, String maxKilometre, int totalDays, 
+    		String tpStatus, String tpStart, String tpEnd, String tpTargetType, String tpTargetMatchid, String tpTargetMatchName,
+    		String tpVersionNo, String minKilometre, String maxKilometre, String totalDays,
     		String tptId, String tptTile, String tptType, String tptDescrition, String weeks) {
     	
     	this.tpId = tpId;
@@ -101,7 +101,7 @@ public class TrainingPlan {
     	return this.tpTargetMatchName;
     }
     
-    public int gettpVersionNo() {
+    public String gettpVersionNo() {
         return this.tpVersionNo;
     }
     
@@ -117,7 +117,7 @@ public class TrainingPlan {
     	return this.maxKilometre;
     }
     
-    public int gettotalDays() {
+    public String gettotalDays() {
     	return this.totalDays;
     }
     
