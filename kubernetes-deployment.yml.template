@@ -34,11 +34,6 @@ spec:
             secretKeyRef:
               name: atp-db-creds
               key: db.password
-        - name: JAVA_OPTS 
-          valueFrom:
-            secretKeyRef:
-              name: atp-jks-creds
-              key: jks.auth
       restartPolicy: Always
       imagePullSecrets:
         - name: ocirsecret
