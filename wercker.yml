@@ -1,0 +1,30 @@
+box:
+  id: openjdk:8-alpine 
+
+build:
+  steps:
+    - internal/docker-build:
+        dockerfile: Dockerfile
+        image-name: web-pc-oracle
+
+    - internal/docker-push:
+        image-name: web-pc-oracle
+        tag: $WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT
+        username: $OKE_USERNAME
+        password: $OKE_PASSWORD
+        repository: $OKE_REPOSITORY
+        registry: $OKE_REGISTRY
+
+deploy-to-oke:
+  box:
+        id: alpine
+        cmd: /bin/sh
+  steps:
+    - bash-template
+
+    - kubectl:
+        name: apply deplyoment
+        server: $KUBERNETES_MASTER
+        token: $KUBERNETES_TOKEN
+        insecure-skip-tls-verify: true
+        command: apply -f $WERCKER_ROOT/kubernetes-deployment.yml --namespace=$APP_NAMESPACE

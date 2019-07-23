@@ -1,0 +1,75 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: web-pc-oracle 
+  labels:
+    run: web-pc-oracle
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        run: web-pc-oracle 
+    spec:
+      containers:
+      - image: $OKE_REPOSITORY:$WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT
+        imagePullPolicy: Always
+        name: web-pc-oracle
+        ports:
+        - containerPort: 30010
+          protocol: TCP
+        env:
+        - name: "DB_USER"
+          valueFrom:
+            secretKeyRef:
+              name: atp-db-creds
+              key: db.user
+        - name: "DB_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              name: atp-db-creds
+              key: db.password
+        - name: JAVA_OPTS 
+          valueFrom:
+            secretKeyRef:
+              name: atp-jks-creds
+              key: jks.auth
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: ocirsecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-pc-oracle-svc
+spec:
+    type: ClusterIP
+    ports:
+    - name: http
+      port: 9092
+      targetPort: 30010
+      protocol: TCP
+    selector:
+      run: web-pc-oracle
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: web-pc-oracle-ing
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    ingress.kubernetes.io/add-base-url: 'true'
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /web-pc-oracle
+        backend:
+          serviceName: web-pc-oracle-svc
+          servicePort: 9092
