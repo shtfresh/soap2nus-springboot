@@ -42,4 +42,8 @@ public class UserMatchService {
 		map.put("matchId", matchId);
 		return userMatchMapper.queryReportMatchList(map);
 	}
+
+	public List<UserMatch> getMatchList() {
+		return userMatchMapper.getMatchList();
+	}
 }

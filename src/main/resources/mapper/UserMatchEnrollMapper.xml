@@ -3,6 +3,18 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.mapper.UserMatchEnrollMapper">
     <select id="queryEnrolledMatchList" resultType="java.util.HashMap">
-		SELECT matchid FROM t_oracle_user_match where userid = #{userId}
+        SELECT matchid FROM t_oracle_user_match where userid = #{userId}
+    </select>
+
+    <select id="getAllEnrolledMatchList" resultType="java.util.HashMap">
+        SELECT * FROM t_oracle_user_match
+    </select>
+
+    <select id="enrolledMatch" parameterType="Map">
+        INSERT INTO
+        t_oracle_user_match
+        (regId, userId, matchId, regDate, status)
+        VALUES
+        (#{regId}, #{userId}, #{matchId}, #{regDate}, #{status})
     </select>
 </mapper>

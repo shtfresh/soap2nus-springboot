@@ -2,26 +2,18 @@ package com.example.AITrainer;
 
 import java.text.SimpleDateFormat;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.example.UserMatch.UserMatch;
+import com.example.UserMatch.UserMatchResponseArray;
 import com.example.mapper.UserMatchEnrollMapper;
 import com.example.service.UserMatchEnrollService;
 import com.example.service.UserMatchService;
-import com.netflix.discovery.converters.Auto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.Results.Results;
 import com.example.TrainingPlan.TrainingPlan;
-import com.example.client.ReadyGoClient;
 import com.example.service.TPService;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -40,6 +32,39 @@ public class UserProfileMatchController {
     
     @Autowired
     TPService tpService;
+
+	@RequestMapping(value="/marathonMatch",method=RequestMethod.GET,produces="application/json;charset=UTF-8")
+	public UserMatchResponseArray getMarathonMatch() {
+		List<UserMatch> matchList = userMatchService.getMatchList();
+		if (matchList.size() > 0) {
+			return new UserMatchResponseArray("00", "success", matchList.toArray(new UserMatch[0]));
+		} else {
+			return new UserMatchResponseArray("01", String.format("fail: no match list"), null);
+		}
+	}
+
+	@RequestMapping(value="/registerMatch",method=RequestMethod.POST,produces="application/json;charset=UTF-8" )
+	public String enrollMatch(@RequestBody String matchRecord) {
+		Gson gson = new Gson();
+		Map<String, Object> map = new HashMap<String, Object>();
+		map = gson.fromJson(matchRecord, map.getClass());
+		try {
+			userMatchEnrollService.enrolledMatch(map);
+		} catch (Exception e) {
+			return Results.failReturnJsonObject(String.format("fail: registerMatch")).toString();
+		}
+		return Results.successReturnJsonObject(null).toString();
+	}
+
+	@RequestMapping(value="/registrationList",method=RequestMethod.GET,produces="application/json;charset=UTF-8" )
+	public String getUserMatchRecord() {
+		JsonArray registeredMatchListjsonArray = new JsonArray();
+		List<Map<String, Object>> returnUserMatch = null;
+		returnUserMatch = userMatchEnrollService.getAllEnrolledMatchList();
+
+		registeredMatchListjsonArray = new JsonParser().parse(new Gson().toJson(returnUserMatch)).getAsJsonArray();
+		return Results.successReturnJsonObjectArray(registeredMatchListjsonArray).toString();
+	}
 
     @RequestMapping(value="/loadUserContext/{userId}",method=RequestMethod.GET,produces="application/json;charset=UTF-8")
     public String loadUserContext(@PathVariable String userId) {

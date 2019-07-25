@@ -37,5 +37,5 @@ public interface UserMatchMapper {
      * @return
      * 获取赛事数据
      */
-    Map<String , Object> queryReportMatchDetail(Map map);
+    List<UserMatch> getMatchList();
 }

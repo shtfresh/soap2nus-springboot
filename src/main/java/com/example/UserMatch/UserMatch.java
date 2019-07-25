@@ -27,8 +27,8 @@ public class UserMatch {
         this.OtherInfo = OtherInfo;
         this.Banner = Banner;
     }
-/*
-    public Integer getmatchId() {
+
+    public String getmatchId() {
         return this.matchId;
     }
 
@@ -36,39 +36,35 @@ public class UserMatch {
         return this.matchName;
     }
 
-    public Integer getmatchType() {
-        return this.matchType;
+    public String getmatchStartTime() {
+        return this.matchStartTime;
     }
 
     public String getmatchAddress() {
         return this.matchAddress;
     }
 
-    public String getmatchStartTime() {
-        return this.matchStartTime;
+    public String getmatchType() {
+        return this.matchType;
     }
 
-    public String getmatchEndTime() {
-        return this.matchEndTime;
+    public String getmatchDesp() {
+        return this.matchDesp;
     }
 
-    public String getplace() {
-        return this.place;
+    public String getCompetitionRule() {
+        return this.CompetitionRule;
     }
 
-    public String provinc() {
-        return this.provinc;
+    public String getEnrollGuide() {
+        return this.EnrollGuide;
     }
 
-    public String city() {
-        return this.city;
+    public String getOtherInfo() {
+        return this.OtherInfo;
     }
 
-    public String area() {
-        return this.area;
+    public String getBanner() {
+        return this.Banner;
     }
-
-    public Integer isDomestic() {
-        return this.isDomestic;
-    }*/
 }

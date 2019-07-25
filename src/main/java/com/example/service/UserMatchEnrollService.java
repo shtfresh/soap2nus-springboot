@@ -21,4 +21,12 @@ public class UserMatchEnrollService {
 		map.put("userId", userId);
 		return userMatchEnrollMapper.queryEnrolledMatchList(map);
 	}
+
+	public void enrolledMatch(Map map) {
+		userMatchEnrollMapper.enrolledMatch(map);
+	}
+
+	public List<Map<String, Object>> getAllEnrolledMatchList() {
+		return userMatchEnrollMapper.getAllEnrolledMatchList();
+	}
 }

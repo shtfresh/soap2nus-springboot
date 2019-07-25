@@ -32,4 +32,8 @@
     <select id="queryReportMatchList" resultType="com.example.UserMatch.UserMatch">
         SELECT * FROM t_oracle_match where matchId = #{matchId}
     </select>
+
+    <select id="getMatchList" resultMap="matchList">
+        SELECT * FROM t_oracle_match
+    </select>
 </mapper>
