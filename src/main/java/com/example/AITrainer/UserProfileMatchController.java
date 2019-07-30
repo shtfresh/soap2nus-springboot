@@ -3,12 +3,14 @@ package com.example.AITrainer;
 import java.text.SimpleDateFormat;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.example.UserMatch.UserMatch;
 import com.example.UserMatch.UserMatchResponseArray;
 import com.example.mapper.UserMatchEnrollMapper;
 import com.example.service.UserMatchEnrollService;
 import com.example.service.UserMatchService;
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +35,9 @@ public class UserProfileMatchController {
     @Autowired
     TPService tpService;
 
+	private final AtomicLong counter = new AtomicLong();
+	private final String randomRegID = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
+
 	@RequestMapping(value="/marathonMatch",method=RequestMethod.GET,produces="application/json;charset=UTF-8")
 	public UserMatchResponseArray getMarathonMatch() {
 		List<UserMatch> matchList = userMatchService.getMatchList();
@@ -48,6 +53,7 @@ public class UserProfileMatchController {
 		Gson gson = new Gson();
 		Map<String, Object> map = new HashMap<String, Object>();
 		map = gson.fromJson(matchRecord, map.getClass());
+		map.put("regId", randomRegID+counter.incrementAndGet());
 		try {
 			userMatchEnrollService.enrolledMatch(map);
 		} catch (Exception e) {
