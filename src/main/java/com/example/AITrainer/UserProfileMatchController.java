@@ -52,7 +52,11 @@ public class UserProfileMatchController {
 	public String enrollMatch(@RequestBody String matchRecord) {
 		Gson gson = new Gson();
 		Map<String, Object> map = new HashMap<String, Object>();
-		map = gson.fromJson(matchRecord, map.getClass());
+		try {
+			map = gson.fromJson(matchRecord, map.getClass());
+		} catch (Exception e) {
+			return Results.failReturnJsonObject(String.format("fail: registerMatch (invalid json body)")).toString();
+		}
 		map.put("regId", randomRegID+counter.incrementAndGet());
 		try {
 			userMatchEnrollService.enrolledMatch(map);

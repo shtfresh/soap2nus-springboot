@@ -13,8 +13,8 @@
     <select id="enrolledMatch" parameterType="Map">
         INSERT INTO
         t_oracle_user_match
-        (regId, userId, matchId, regDate, status)
+        (regId, userId, matchId, matchName, regDate, status)
         VALUES
-        (#{regId}, #{userId}, #{matchId}, #{regDate}, #{status})
+        (#{regId}, #{userId}, #{matchId}, #{matchName}, #{regDate}, #{status})
     </select>
 </mapper>
