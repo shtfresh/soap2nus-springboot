@@ -13,6 +13,8 @@
         <result column="EnrollGuide" property="EnrollGuide" jdbcType="VARCHAR"/>
         <result column="OtherInfo" property="OtherInfo" jdbcType="VARCHAR"/>
         <result column="Banner" property="Banner" jdbcType="VARCHAR"/>
+        <result column="matchEndTime" property="matchEndTime" jdbcType="VARCHAR"/>
+        
     </resultMap>
     <select id="getUserInfoByUserId" resultType="Map">
 		SELECT * FROM t_oracle_user where userId = #{userId}
