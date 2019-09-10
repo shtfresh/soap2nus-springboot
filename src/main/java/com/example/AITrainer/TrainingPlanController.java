@@ -95,14 +95,14 @@ public class TrainingPlanController {
     	
     	// get Enum
     	JsonObject tptEnumJsonObject = tptEnumService.getPlanTemplateEnum();
-    	
+
     	// get tpt
     	TrainingPlanTemplate tpt;
     	tpt = tptService.getPlanTemplate(tpItemJsonObject.get("tptId").toString().replace("\"", ""));
     	if (tpt == null) {
     		return new TrainingPlanResponse("01", String.format("fail: %s tpt not found", tpItemJsonObject.get("tptId").toString()), null);
     	}
-    	
+    	System.out.println("111111111111111111111111111111111111111111111111111111111111");
     	String tpOwnerId = tpItemJsonObject.get("tpOwnerId").toString().replace("\"", "");
     	TrainingPlan tp = tpService.getActivePlan(tpOwnerId);
     	if (tp != null) {
@@ -120,20 +120,24 @@ public class TrainingPlanController {
     	int totalTrainingDays = 0;
     	LocalDate startTime = LocalDate.parse(tpItemJsonObject.get("tpStart").toString().replace("\"", ""));
     	JsonArray weeksjsonArray = new JsonParser().parse(tpt.getWeeks()).getAsJsonArray();
+      	System.out.println("222222222222222222222222222222222222222222222222222222222222");
     	for (JsonElement pa : weeksjsonArray) {
     		JsonObject temp = pa.getAsJsonObject();
+          	System.out.println("333333333333333333333333333333");
         	Set<Map.Entry<String, JsonElement>> entries = temp.entrySet();
 
         	for (Map.Entry<String, JsonElement> entry: entries) {
         		JsonElement taskItem = entry.getValue().getAsJsonObject().get("tasks");
+              	System.out.println("444444444444444444444444444444444444444");
         		if (taskItem != null) {
     				int minKilometre = 0;
     				int maxKilometre = 0;
         			for (JsonElement pb : taskItem.getAsJsonArray()) {
         				int repeat = 0;
         				repeat = Integer.parseInt(pb.getAsJsonObject().get("Re").toString());
-        				
+        	          	System.out.println("555555555555555555555555555555555");
         				for (JsonElement pasubTask : pb.getAsJsonObject().get("task").getAsJsonArray()) {
+        		          	System.out.println("666666666666666666666666666666666666666666666");
             				int min = 0;
             				int max = 0;
             				int value = 0;
@@ -146,10 +150,19 @@ public class TrainingPlanController {
         		        		if (task_key.equals(new String("kilometre"))) {
         		        			break;
         		        		}
+        		        		System.out.println("task_key:"+task_key);
+        		        		System.out.println("tptEnumJsonObject:"+tptEnumJsonObject.toString());
+        		        		
         		        		String tempString = tptEnumJsonObject.get(task_key).toString().replace("\\", "");
+        		           		System.out.println("tempString----:"+tempString);
         		        		tempString = tempString.substring(1, tempString.length()-1);
+        		        		System.out.println("tempString:"+tempString);
+        		        		System.out.println("task_key:"+task_key);
+        		        		System.out.println("????????????????????????????????????????????????????");
         		        		min = Integer.parseInt(new JsonParser().parse(tempString).getAsJsonObject().get("min").toString().replace("\"", ""));
+        		        		System.out.println("7777777777777777777777777777777777777777777");
         		        		max = Integer.parseInt(new JsonParser().parse(tempString).getAsJsonObject().get("max").toString().replace("\"", ""));
+        		        		System.out.println("8888888888888888888888888888888888888888888888888");
         		        	}
         		        	if (min != 0 && max != 0) {
         		        		minKilometre = minKilometre + ((1000/min) * value)*repeat;
@@ -160,8 +173,11 @@ public class TrainingPlanController {
         		        	}
         				}
             			entry.getValue().getAsJsonObject().addProperty("minKilometre", String.valueOf(minKilometre));
+            			System.out.println("9999999999999999999999999999999999999");
             			entry.getValue().getAsJsonObject().addProperty("maxKilometre", String.valueOf(maxKilometre));	
+            			System.out.println("10101010101010101010101");
         				entry.getValue().getAsJsonObject().addProperty("status", "planned");
+        				System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
         				
         				totalminKilometre += minKilometre;
         		    	totalmaxKilometre += maxKilometre;
@@ -171,39 +187,111 @@ public class TrainingPlanController {
         		} else {
         			entry.getValue().getAsJsonObject().addProperty("status", "rest");
         			entry.getValue().getAsJsonObject().addProperty("completeStatus", 5);
+        			System.out.println("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
         		}
 				entry.getValue().getAsJsonObject().addProperty("finished", "0");
 				entry.getValue().getAsJsonObject().addProperty("date", startTime.toString());
 				startTime = startTime.plusDays(1);
 				totalDays += 1;
+				System.out.println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
         	}
     	}
     	
     	//System.out.println(weeksjsonArray.toString());
     	TrainingPlan tpNew = null;
     	try {
+    		
+    	   	System.out.println("zzzzzzzzzzzzzzzzzzzzzzzzzzz:"+tpItemJsonObject.toString());
+    	   	System.out.println("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm:"+tpt.toString());
+    	   	
+    	   	
+        	String tpId_="tp"+randomTPID+counter.incrementAndGet();
+        	System.out.println("111");
+        	String tpOwnerId_=tpItemJsonObject.get("tpOwnerId").toString().replace("\"", "");
+        	System.out.println("222");
+        	String tpPublishedAt_=df.format(new Date());
+        	System.out.println("333");
+        	String tpUpdateAt_="";
+      
+        	String tpOwner_=tpItemJsonObject.get("tpOwner").toString().replace("\"", "");
+          	System.out.println("444");
+        	String tpStatus_="active";
+        	String tpStart_=tpItemJsonObject.get("tpStart").toString().replace("\"", "");
+        	System.out.println("555");
+        	String tpEnd_=tpItemJsonObject.get("tpEnd").toString().replace("\"", "");
+        	System.out.println("6666");
+        	String tpTargetType_=tpItemJsonObject.get("tpTargetType").toString().replace("\"", "");
+        	
+        	System.out.println("7777");
+        	String tpTargetMatchid_=tpItemJsonObject.get("tpTargetMatchid").toString().replace("\"", "");
+        	
+        	System.out.println("888");
+        	String tpTargetMatchName_=tpItemJsonObject.get("tpTargetMatchName").toString().replace("\"", "");
+        	System.out.println("9999");
+        	String tpVersionNo_=Integer.toString(1);
+        	System.out.println("1010101");
+        	String minKilometre_=String.valueOf(totalminKilometre);
+        	System.out.println("1111111111111111111111111");
+        	String maxKilometre_=Integer.toString(totalDays - totalTrainingDays);
+        	System.out.println("1212121212");
+        	String totalDays_=tpt.gettptId();
+        	System.out.println("13131313131313");
+
+        	String tptTile_=tpt.gettptTile();
+        	System.out.println("14141414141");
+        	String tptType_=tpt.gettptType();
+        	System.out.println("1515151515");
+        	String tptDescrition_=tpt.gettptDescrition();
+        	System.out.println("161616161616");
+        	String weeks_=weeksjsonArray.toString(); 
+        	System.out.println("171717171717");
+    	   	
 	    	tpNew = new TrainingPlan(
-	    			"tp"+randomTPID+counter.incrementAndGet(),
-	    			tpItemJsonObject.get("tpOwnerId").toString().replace("\"", ""),
-	    			df.format(new Date()),
-	    			"",
-	    			tpItemJsonObject.get("tpOwner").toString().replace("\"", ""),
-	    			"active",
-	    			tpItemJsonObject.get("tpStart").toString().replace("\"", ""),
-	    			tpItemJsonObject.get("tpEnd").toString().replace("\"", ""),
-	    			tpItemJsonObject.get("tpTargetType").toString().replace("\"", ""),
-	    			tpItemJsonObject.get("tpTargetMatchid").toString().replace("\"", ""),
-	    			tpItemJsonObject.get("tpTargetMatchName").toString().replace("\"", ""),
-					Integer.toString(1),
-	    			String.valueOf(totalminKilometre),
-	    			String.valueOf(totalmaxKilometre),
-					Integer.toString(totalDays - totalTrainingDays),
-	    			tpt.gettptId(),
-	    			tpt.gettptTile(),
-	    			tpt.gettptType(),
-	    			tpt.gettptDescrition(),
-	    			weeksjsonArray.toString());
+	    			tpId_,
+	    			tpOwnerId_,
+	    			tpPublishedAt_,
+	    			tpUpdateAt_,
+	    			tpOwner_,
+	    			tpStatus_,
+	    			tpStart_,
+	    			tpEnd_,
+	    			tpTargetType_,
+	    			tpTargetMatchid_,
+	    			tpTargetMatchName_,
+	    			tpVersionNo_,
+	    			minKilometre_,
+	    			minKilometre_,
+	    			maxKilometre_,
+	    			totalDays_,
+	    			tptTile_,
+	    			tptType_,
+	    			tptDescrition_,
+	    			weeks_);
+	    	
+//	    	tpNew = new TrainingPlan(
+//	    			"tp"+randomTPID+counter.incrementAndGet(),
+//	    			tpItemJsonObject.get("tpOwnerId").toString().replace("\"", ""),
+//	    			df.format(new Date()),
+//	    			"",
+//	    			tpItemJsonObject.get("tpOwner").toString().replace("\"", ""),
+//	    			"active",
+//	    			tpItemJsonObject.get("tpStart").toString().replace("\"", ""),
+//	    			tpItemJsonObject.get("tpEnd").toString().replace("\"", ""),
+//	    			tpItemJsonObject.get("tpTargetType").toString().replace("\"", ""),
+//	    			tpItemJsonObject.get("tpTargetMatchid").toString().replace("\"", ""),
+//	    			tpItemJsonObject.get("tpTargetMatchName").toString().replace("\"", ""),
+//					Integer.toString(1),
+//	    			String.valueOf(totalminKilometre),
+//	    			String.valueOf(totalmaxKilometre),
+//					Integer.toString(totalDays - totalTrainingDays),
+//	    			tpt.gettptId(),
+//	    			tpt.gettptTile(),
+//	    			tpt.gettptType(),
+//	    			tpt.gettptDescrition(),
+//	    			weeksjsonArray.toString());
+	    	System.out.println("ttttttttttttttttttttttttttttttttttttttttt");
     	} catch (Exception e) {
+    		System.out.println(e);
     		return new TrainingPlanResponse("01", "fail: invalid options", null);
     	}
     	
@@ -366,6 +454,7 @@ public class TrainingPlanController {
     		boolean found = false;
     	   	JsonArray weeksjsonArray = new JsonParser().parse(tp.getWeeks()).getAsJsonArray();
     	   	Map<String, String> mapNeedModify = new HashMap<String, String>();
+
         	for (JsonElement pa : weeksjsonArray) {
         		JsonObject temp = pa.getAsJsonObject();
             	Set<Map.Entry<String, JsonElement>> entries = temp.entrySet();

@@ -12,11 +12,10 @@ public class UserMatch {
     private final String EnrollGuide;
     private final String OtherInfo;
     private final String Banner;
-    private final String matchEndTime;
 
     public UserMatch(String matchId, String matchName, String matchStartTime,
                      String matchAddress, String matchType, String matchDesp,
-                     String CompetitionRule, String EnrollGuide, String OtherInfo, String Banner,String matchEndTime) {
+                     String CompetitionRule, String EnrollGuide, String OtherInfo, String Banner) {
         this.matchId = matchId;
         this.matchName = matchName;
         this.matchStartTime = matchStartTime;
@@ -27,7 +26,6 @@ public class UserMatch {
         this.EnrollGuide = EnrollGuide;
         this.OtherInfo = OtherInfo;
         this.Banner = Banner;
-        this.matchEndTime= matchEndTime;
     }
 
     public String getmatchId() {
@@ -69,33 +67,4 @@ public class UserMatch {
     public String getBanner() {
         return this.Banner;
     }
-
-	public String getMatchId() {
-		return matchId;
-	}
-
-	public String getMatchName() {
-		return matchName;
-	}
-
-	public String getMatchStartTime() {
-		return matchStartTime;
-	}
-
-	public String getMatchAddress() {
-		return matchAddress;
-	}
-
-	public String getMatchType() {
-		return matchType;
-	}
-
-	public String getMatchDesp() {
-		return matchDesp;
-	}
-
-	public String getMatchEndTime() {
-		return matchEndTime;
-	}
-    
 }
