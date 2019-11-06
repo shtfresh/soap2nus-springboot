@@ -1,4 +1,4 @@
-FROM openjdk:8-alpine
+FROM openjdk:12-oraclelinux7
 
 RUN apk add maven \
     && mvn -v \
