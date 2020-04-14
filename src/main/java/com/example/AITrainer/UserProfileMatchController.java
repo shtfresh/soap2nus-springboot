@@ -7,10 +7,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.example.UserMatch.UserMatch;
 import com.example.UserMatch.UserMatchResponseArray;
-import com.example.mapper.UserMatchEnrollMapper;
+import com.example.Utl.UtilTools;
 import com.example.service.UserMatchEnrollService;
 import com.example.service.UserMatchService;
-import org.apache.commons.lang.RandomStringUtils;
+//import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +36,8 @@ public class UserProfileMatchController {
     TPService tpService;
 
 	private final AtomicLong counter = new AtomicLong();
-	private final String randomRegID = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
+	//private final String randomRegID = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
+	private final String randomRegID = UtilTools.getRandomStr(4).toUpperCase();
 
 	@RequestMapping(value="/marathonMatch",method=RequestMethod.GET,produces="application/json;charset=UTF-8")
 	public UserMatchResponseArray getMarathonMatch() {

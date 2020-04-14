@@ -1,7 +1,6 @@
 package com.example.mapper;
 
-import java.util.List;
-import java.util.Map;
+
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -13,7 +12,7 @@ import org.apache.ibatis.annotations.Select;
 import com.example.model.ChangePassWordBean;
 
 
-@Mapper
+//@Mapper
 public interface SaasInformationMapper {
 
 

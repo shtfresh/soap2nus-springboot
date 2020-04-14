@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.alibaba.fastjson.JSONObject;
-import com.example.TrainingPlan.TrainingPlan;
-import com.example.TrainingPlan.TrainingPlanResponse;
+//import com.alibaba.fastjson.JSONObject;
+
+
 import com.example.Utl.RestUtil;
 import com.example.mapper.SaasInformationMapper;
 import com.example.model.ChangePassWordBean;
@@ -52,7 +52,7 @@ public class SaasInterFaceController {
 		saasInfomationMapper.insertSysRole(changePassWordBean);
 		
 		
-		ResponseEntity responseEntity = new ResponseEntity(HttpStatus.ACCEPTED);
+		ResponseEntity responseEntity = new ResponseEntity("success",HttpStatus.ACCEPTED);
 		return responseEntity;
 	}
 	
@@ -98,7 +98,7 @@ public class SaasInterFaceController {
     }
 	
 	@RequestMapping(value="/postCrmRestApi",method=RequestMethod.POST)
-    public ResponseEntity<String> postCrmRestApi(@RequestBody JSONObject jsonobject) {
+    public ResponseEntity<String> postCrmRestApi(@RequestBody Object jsonobject) {
 		
 		
 		
@@ -121,4 +121,23 @@ public class SaasInterFaceController {
     }
 	
 
+	@RequestMapping(value="/getHcmRestApi",method=RequestMethod.GET)
+    public ResponseEntity<String> getHcmRestApi(String userName) {
+
+		ChangePassWordBean changePassWordBean = saasInfomationMapper.getSaasInfomation();
+		
+		String url=changePassWordBean.getDomain()+"hcmRestApi/resources/latest/emps?q=UserName="+userName;
+
+
+		String plainCreds = changePassWordBean.getUserName()+":"+changePassWordBean.getPassWord();
+
+		
+		return restUtil.restGet(url,plainCreds);
+
+    }
+	
+	
+	
+	
+	
 }

@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.text.SimpleDateFormat;
 
-import org.apache.commons.lang.RandomStringUtils;
+//import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +19,7 @@ import com.example.Results.Results;
 import com.example.TrainingPlanTemplate.TrainingPlanTemplate;
 import com.example.TrainingPlanTemplate.TrainingPlanTemplateResponse;
 import com.example.TrainingPlanTemplate.TrainingPlanTemplateResponseArray;
+import com.example.Utl.UtilTools;
 import com.example.service.TPTService;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -26,8 +27,8 @@ import com.google.gson.JsonParser;
 @RestController
 public class TrainingPlanTemplateController {
     private final AtomicLong counter = new AtomicLong();
-    private final String randomTPTID = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
-    
+   // private final String randomTPTID = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
+    private final String randomTPTID = UtilTools.getRandomStr(4).toUpperCase();
     @Autowired
     TPTService tptService;
 

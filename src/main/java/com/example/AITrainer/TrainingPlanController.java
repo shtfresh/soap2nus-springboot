@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
-import org.apache.commons.lang.RandomStringUtils;
+//import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +24,7 @@ import com.example.TrainingPlan.TrainingPlan;
 import com.example.TrainingPlan.TrainingPlanResponse;
 import com.example.TrainingPlan.TrainingPlanResponseArray;
 import com.example.TrainingPlanTemplate.TrainingPlanTemplate;
+import com.example.Utl.UtilTools;
 import com.example.service.TPService;
 import com.example.service.TPTEnumService;
 import com.example.service.TPTService;
@@ -36,8 +37,8 @@ import com.google.gson.JsonParser;
 public class TrainingPlanController {
 
     private final AtomicLong counter = new AtomicLong();
-    private final String randomTPID = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
-    
+    //private final String randomTPID = RandomStringUtils.randomAlphanumeric(4).toUpperCase();
+    private final String randomTPID = UtilTools.getRandomStr(4).toUpperCase();
     @Autowired
     TPService tpService;
     
